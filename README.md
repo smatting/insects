@@ -55,3 +55,15 @@ OnCalendar=*-*-* *:*:*
 [Install]
 WantedBy=default.target
 ```
+
+
+## OpenCV on raspberry
+
+Install libaries
+
+sudo apt-get install libatlas-base-dev
+sudo apt-get install libjasper-dev
+sudo apt-get install libqtgui4
+sudo apt-get install python3-pyqt5
+sudo apt-get install libqt4-test
+sudo apt-get install libilmbase-dev libopenexr-dev libgstreamer1.0-dev
