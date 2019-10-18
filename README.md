@@ -74,5 +74,5 @@ Höhe: 50cm
 
 open source ecology germany
 
-- 
+-> 100x60x60 
 
