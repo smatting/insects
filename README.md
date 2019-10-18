@@ -55,3 +55,24 @@ OnCalendar=*-*-* *:*:*
 [Install]
 WantedBy=default.target
 ```
+
+## 2019-10-18
+
+Reconfigure wifi:
+
+1. edit `/etc/wpa_supplicant/wpa_supplicant.conf`
+2. Reload with `wpa_cli -i wlan0 reconfigure`. (`systemctl netorking` doesnt seem to work)
+
+You can also copy to `/boot/wpa_supplicant.conf` and restart if you have access to SD card.
+
+
+76cm Breite, 42cm bei 61cm Abstand
+
+Länge: 80cm-100cm
+Breite: 80cm
+Höhe: 50cm
+
+open source ecology germany
+
+- 
+
