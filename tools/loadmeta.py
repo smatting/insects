@@ -8,26 +8,26 @@ import csv
 import docopt
 
 stage_ddl = '''
-create temporary table frames_staging
+create temporary table frame_staging
 (
     id text,
     cam_id text,
     filename text,
     frame int,
-    time_stamp timestamp without time zone,
-    event_time_stamp timestamp without time zone,
+    time_stamp timestamp,
+    event_time_stamp timestamp,
     local_filename text
 );
 '''
 
 insert_sql = '''
-insert into frames
+insert into frame
 (
     select
         *
     from
-        frames_staging
-    where id not in (select id from frames)
+        frame_staging
+    where id not in (select id from frame)
 )
 returning id
 '''
@@ -49,6 +49,10 @@ def parse_decimal_stamp(k):
         return dt
     else:
         raise ValueError('Cannot parse {}'.format(k))
+
+
+def format_timestamp(dt):
+    pass
 
 class CSVLikeFile:
     '''
@@ -144,7 +148,7 @@ def insert_frames(cursor, frames):
     ]
     f = CSVLikeFile(get_rows(frames, columns))
     cursor.execute(stage_ddl)
-    cursor.copy_expert(f'copy frames_staging from stdin with csv delimiter \',\';', f)
+    cursor.copy_expert(f'copy frame_staging from stdin with csv delimiter \',\';', f)
 
     cursor.execute(insert_sql)
     x = cursor.fetchall()
