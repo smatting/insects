@@ -1,0 +1,5 @@
+classes= 2
+train  = /content/gdrive/My\ Drive/darknet/data/streetlife/train.txt
+valid  = /content/gdrive/My\ Drive/darknet/data/streetlife/test.txt
+names = /content/gdrive/My\ Drive/darknet/data/streetlife/obj.names
+backup = /content/gdrive/My\ Drive/darknet/backup/streetlife/
