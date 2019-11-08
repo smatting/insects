@@ -1,6 +1,7 @@
-export const updateView = ({ view }) => {
+export const updateView = view => {
   return {
     type: "VIEW_UPDATE",
-    view
+    view,
+    server: true
   };
 };

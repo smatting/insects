@@ -5,3 +5,6 @@ flake8
 ipdb
 ipdb
 ipython
+flask
+flask_socketio
+"python-socketio[client]"

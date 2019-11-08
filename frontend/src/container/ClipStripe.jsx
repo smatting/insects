@@ -25,60 +25,40 @@ const useStyles = makeStyles(theme => ({
   titleBar: {
     background:
       "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)"
-  }
+  },
+  img: {},
+  placeholder: { backgroundColor: "grey", width: "100%", height: "100%" }
 }));
 
-const tileData = [
-  {
-    img: "https://picsum.photos/200/300",
-    title: "Image",
-    author: "author"
-  },
-  {
-    img: "https://picsum.photos/200/300",
-    title: "Image",
-    author: "author"
-  },
-  {
-    img: "https://picsum.photos/200/300",
-    title: "Image",
-    author: "author"
-  },
-  {
-    img: "https://picsum.photos/200/300",
-    title: "Image",
-    author: "author"
-  },
-  {
-    img: "https://picsum.photos/200/300",
-    title: "Image",
-    author: "author"
-  }
-];
+const makeStripe = ({ thumbURL, classes, idx }) => (
+  <GridListTile key={"stripe" + idx}>
+    {thumbURL ? (
+      <img className={classes.img} alt={"title"} src={thumbURL} />
+    ) : (
+      <div className={classes.placeholder}></div>
+    )}
+    <GridListTileBar
+      title={"title"}
+      classes={{
+        root: classes.titleBar,
+        title: classes.title
+      }}
+      actionIcon={
+        <IconButton aria-label={`star fooo`}>
+          <StarBorderIcon className={classes.title} />
+        </IconButton>
+      }
+    />
+  </GridListTile>
+);
 
-const SingleLineGridList = () => {
+const SingleLineGridList = ({ images }) => {
   const classes = useStyles();
-
+  console.log(images);
   return (
     <div className={classes.root}>
       <GridList className={classes.gridList} cols={2.5}>
-        {tileData.map(tile => (
-          <GridListTile key={tile.img}>
-            <img src={tile.img} alt={tile.title} />
-            <GridListTileBar
-              title={tile.title}
-              classes={{
-                root: classes.titleBar,
-                title: classes.title
-              }}
-              actionIcon={
-                <IconButton aria-label={`star ${tile.title}`}>
-                  <StarBorderIcon className={classes.title} />
-                </IconButton>
-              }
-            />
-          </GridListTile>
-        ))}
+        {_.map(images, (img, idx) => makeStripe({ ...img, classes, idx }))}
       </GridList>
     </div>
   );

@@ -7,25 +7,24 @@ import logger from "redux-logger";
 
 import epics from "./epics";
 import reducers from "./reducer";
+import * as a from "./actions";
+
+import createSocketIoMiddleware from "redux-socket.io";
+import io from "socket.io-client";
 
 import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import AppBar from "@material-ui/core/AppBar";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Toolbar from "@material-ui/core/Toolbar";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
 import List from "@material-ui/core/List";
 import Typography from "@material-ui/core/Typography";
-import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
-import MailIcon from "@material-ui/icons/Mail";
 
 import ClipOverview from "./container/ClipOverview";
 import Clip from "./container/Clip";
+import LiveView from "./container/LiveView";
 
 const drawerWidth = 240;
 
@@ -53,7 +52,13 @@ const useStyles = makeStyles(theme => ({
   toolbar: theme.mixins.toolbar
 }));
 
-const Index = ({ view }) => {
+const views = [
+  { screenName: "Overview", id: "OVERVIEW" },
+  { screenName: "Clip", id: "CLIP" },
+  { screenName: "Live", id: "LIVE" }
+];
+
+const Index = ({ view, updateView }) => {
   const classes = useStyles();
 
   return (
@@ -75,15 +80,18 @@ const Index = ({ view }) => {
       >
         <div className={classes.toolbar} />
         <List>
-          <ListItem button key="overview">
-            <ListItemText primary="Overview" />
-          </ListItem>
+          {views.map(({ screenName, id }, index) => (
+            <ListItem button key={id} onClick={() => updateView(id)}>
+              <ListItemText primary={screenName} />
+            </ListItem>
+          ))}
         </List>
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />
-        {/* {view == "OVERVIEW" ? <ClipOverview /> : null} */}
+        {view == "OVERVIEW" ? <ClipOverview /> : null}
         {view == "CLIP" ? <Clip /> : null}
+        {view == "LIVE" ? <LiveView /> : null}
       </main>
     </div>
   );
@@ -91,7 +99,13 @@ const Index = ({ view }) => {
 
 const epicMiddleware = createEpicMiddleware();
 
-const middlewares = [logger, epicMiddleware];
+let socket = io("http://0.0.0.0:5000/");
+let socketIoMiddleware = createSocketIoMiddleware(
+  socket,
+  (type, action) => action.server
+);
+
+const middlewares = [epicMiddleware, socketIoMiddleware, logger];
 
 const enhancer = compose(applyMiddleware(...middlewares));
 
@@ -104,7 +118,8 @@ epicMiddleware.run(epics);
 const IndexContainer = connect(
   (state, ownProps) => ({ view: state.view }),
   (dispatch, ownProps) => ({
-    // onMount: () => dispatch(a.initApp())
+    // onMount: () => dispatch(a.initApp()),
+    updateView: view => dispatch(a.updateView(view))
   })
 )(Index);
 
