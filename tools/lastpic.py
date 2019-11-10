@@ -44,7 +44,7 @@ def main(cfg):
         if filename_poll != filename:
             filename = filename_poll
         if filename is not None:
-            filename(sio, filename)
+            update_image(sio, filename)
         time.sleep(0.1)
 
 
