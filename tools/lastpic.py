@@ -29,9 +29,7 @@ def poll_frame(cfg, state):
             f = cursor.fetchone()[0]
             if f != state.file:
                 return f
-            else:
-                print('meh')
-            time.sleep(0.1)
+            time.sleep(cfg.poll_sleep_secs)
 
 
 def wait_next_frame(cfg, state, next_frame_available):
@@ -65,14 +63,13 @@ def main(cfg):
         if state.file is not None:
             base64_string = read_file(state.file)
 
+            print('Found new picture!')
             # TODO: Do i need to "clear" next_frame_available here?
             sio.emit('action', {"type": 'LIVEIMAGE_PUSH', "liveImage": base64_string}, callback=gen_callback(cfg, state, next_frame_available))
 
             print('Waiting for new image...')
             with next_frame_available:
                 next_frame_available.wait()
-
-            print('Confirmed!')
 
 
 usage = '''
