@@ -89,3 +89,8 @@ Höhe: 50cm
 open source ecology germany
 
 -> 100x60x60
+
+Get live picture via:
+```
+python3 ./tools/lastpic.py http://195.201.97.57:5000/ /media/usb/cam1/frames.db
+```
