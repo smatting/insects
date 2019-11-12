@@ -3,12 +3,14 @@ import base64
 import sqlite3
 import socketio
 import time
+import threading
 
 
 class Config:
     def __init__(self, host_url, dbfilename):
         self.host_url = host_url
         self.dbfilename = dbfilename
+        self.poll_sleep_secs = 0.1
 
 
 def read_file(filename):
@@ -17,35 +19,60 @@ def read_file(filename):
     return base64_bytes.decode('utf-8')
 
 
-def update_image(sio, filename):
-    print('emitting new image')
-    base64_string = read_file(filename)
-    sio.emit('action', {"type": 'LIVEIMAGE_PUSH', "liveImage": base64_string})
-
-
-def get_last(dbfilename):
-    '''
-    load frames out of a Motion sqlite3 database
-    '''
-    with sqlite3.connect(dbfilename) as conn:
-        sql = 'select filename from security order by time_stamp desc limit 1'
+def poll_frame(cfg, state):
+    with sqlite3.connect(cfg.dbfilename) as conn:
         cursor = conn.cursor()
-        cursor.execute(sql)
-        return cursor.fetchone()[0]
+        while True:
+            # sql = "select '/home/stefan/repos/insects/backend/dummy/simon.jpg'"
+            sql = 'select filename from security order by time_stamp desc limit 1'
+            cursor.execute(sql)
+            f = cursor.fetchone()[0]
+            if f != state.file:
+                return f
+            else:
+                print('meh')
+            time.sleep(0.1)
+
+
+def wait_next_frame(cfg, state, next_frame_available):
+    f = poll_frame(cfg, state)
+    state.file = f
+    with next_frame_available:
+        next_frame_available.notify()
+
+
+def gen_callback(cfg, state, next_frame_available):
+    def f():
+        # threading.Thread(target=wait_next_frame, args=(cfg, state, next_frame_available)).start()
+        return wait_next_frame(cfg, state, next_frame_available)
+    return f
+
+
+class State:
+    def __init__(self):
+        self.file = None
 
 
 def main(cfg):
     sio = socketio.Client()
     sio.connect(cfg.host_url)
 
-    filename = None
+    state = State()
+    next_frame_available = threading.Condition()
+    wait_next_frame(cfg, state, next_frame_available)
+
     while True:
-        filename_poll = get_last(cfg.dbfilename)
-        if filename_poll != filename:
-            filename = filename_poll
-        if filename is not None:
-            update_image(sio, filename)
-        time.sleep(0.1)
+        if state.file is not None:
+            base64_string = read_file(state.file)
+
+            # TODO: Do i need to "clear" next_frame_available here?
+            sio.emit('action', {"type": 'LIVEIMAGE_PUSH', "liveImage": base64_string}, callback=gen_callback(cfg, state, next_frame_available))
+
+            print('Waiting for new image...')
+            with next_frame_available:
+                next_frame_available.wait()
+
+            print('Confirmed!')
 
 
 usage = '''
