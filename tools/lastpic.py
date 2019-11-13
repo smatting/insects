@@ -20,56 +20,56 @@ def read_file(filename):
 
 
 def poll_frame(cfg, state):
-    with sqlite3.connect(cfg.dbfilename) as conn:
-        cursor = conn.cursor()
-        while True:
-            # sql = "select '/home/stefan/repos/insects/backend/dummy/simon.jpg'"
-            sql = 'select filename from security order by time_stamp desc limit 1'
-            cursor.execute(sql)
-            f = cursor.fetchone()[0]
-            if f != state.file:
-                return f
-            time.sleep(cfg.poll_sleep_secs)
+    cursor = state.conn.cursor()
+    while True:
+        # sql = "select '/home/stefan/repos/insects/backend/dummy/simon.jpg'"
+        sql = 'select filename from security order by time_stamp desc limit 1'
+        cursor.execute(sql)
+        f = cursor.fetchone()[0]
+        if f != state.file:
+            cursor.close()
+            return f
+        time.sleep(cfg.poll_sleep_secs)
 
 
-def wait_next_frame(cfg, state, next_frame_available):
+def wait_next_frame(cfg, state):
     f = poll_frame(cfg, state)
     state.file = f
-    with next_frame_available:
-        next_frame_available.notify()
 
 
-def gen_callback(cfg, state, next_frame_available):
+def gen_callback(server_received_image):
     def f():
-        # threading.Thread(target=wait_next_frame, args=(cfg, state, next_frame_available)).start()
-        return wait_next_frame(cfg, state, next_frame_available)
+        with server_received_image:
+            server_received_image.notify()
     return f
 
 
 class State:
-    def __init__(self):
+    def __init__(self, conn):
         self.file = None
+        self.conn = conn
 
 
 def main(cfg):
     sio = socketio.Client()
     sio.connect(cfg.host_url)
 
-    state = State()
-    next_frame_available = threading.Condition()
-    wait_next_frame(cfg, state, next_frame_available)
+    conn = sqlite3.connect(cfg.dbfilename)
+    state = State(conn)
+
+    server_received_image = threading.Condition()
 
     while True:
-        if state.file is not None:
-            base64_string = read_file(state.file)
+        wait_next_frame(cfg, state)
 
-            print('Found new picture!')
-            # TODO: Do i need to "clear" next_frame_available here?
-            sio.emit('action', {"type": 'LIVEIMAGE_PUSH', "liveImage": base64_string}, callback=gen_callback(cfg, state, next_frame_available))
+        print('Found new picture!')
+        base64_string = read_file(state.file)
 
-            print('Waiting for new image...')
-            with next_frame_available:
-                next_frame_available.wait()
+        sio.emit('action', {"type": 'LIVEIMAGE_PUSH', "liveImage": base64_string}, callback=gen_callback(server_received_image))
+        with server_received_image:
+            server_received_image.wait()
+        print('Image pushed to server')
+
 
 
 usage = '''
