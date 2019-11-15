@@ -97,9 +97,13 @@ const Index = ({ view, updateView }) => {
   );
 };
 
+
 const epicMiddleware = createEpicMiddleware();
 
-let socket = io("http://0.0.0.0:5000/");
+// let socket = io("http://0.0.0.0:5000/");
+// let socket = io("http://195.201.97.57:5000/");
+let socket = io("http://0.0.0.0:8080/");
+
 let socketIoMiddleware = createSocketIoMiddleware(
   socket,
   (type, action) => action.server
