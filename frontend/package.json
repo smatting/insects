@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "APP_HOST=http://0.0.0.0:5000 webpack-dev-server --port 8090 --host 0.0.0.0 --hot --inline",
-        "test": "webpack-dev-server --port 8090 --host 0.0.0.0 --hot --inline",
+        "test": "webpack-dev-server --port 80 --host 0.0.0.0 --hot --inline",
         "build": "webpack --mode production"
     },
     "keywords": [],
