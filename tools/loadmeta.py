@@ -158,8 +158,8 @@ def run(sqlite_db, cam_id):
     '''
     Usage: loadmeta <sqlite-db> <cam-id>
     '''
-    fn = '/home/stefan/Downloads/frames.db'
-    frames = load_frames(fn, 'cam1')
+    # fn = '/home/stefan/Downloads/frames.db'
+    frames = load_frames(sqlite_db, 'cam1')
     print(f'Found {len(frames)} frames in sqlite db')
     with connect_db() as conn:
         cursor = conn.cursor()
