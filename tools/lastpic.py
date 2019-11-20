@@ -23,13 +23,16 @@ def poll_frame(cfg, state):
     cursor = state.conn.cursor()
     while True:
         # sql = "select '/home/stefan/repos/insects/backend/dummy/simon.jpg'"
-        sql = 'select filename from security order by time_stamp desc limit 1'
-        cursor.execute(sql)
-        f = cursor.fetchone()[0]
-        if f != state.file:
-            cursor.close()
-            return f
-        time.sleep(cfg.poll_sleep_secs)
+        try:
+            sql = 'select filename from security order by time_stamp desc limit 1'
+            cursor.execute(sql)
+            f = cursor.fetchone()[0]
+            if f != state.file:
+                cursor.close()
+                return f
+            time.sleep(cfg.poll_sleep_secs)
+        except Exception as e:
+            print('There was an exception: {}'.format(e))
 
 
 def wait_next_frame(cfg, state):
