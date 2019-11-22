@@ -4,7 +4,7 @@ where
 
 {-|
 
-   This is how yo defined data types:
+   This is how you define custom data types:
 
     data Person = Person Text Text
          ^        ^      ^    ^
@@ -24,12 +24,10 @@ where
     - If "Foo" is a type, then "[Foo]" is the type "list of Foo"
     - If "Foo" is a type, then "Maybe Foo" is a type which has the same values as Foo
       plus a value "Nothing" which is the absence of a value, like "null" or "None"
+    - If "Foo" and "Bar" are types then "(Foo, Bar)" is the type of tuples
 
 -}
 
--- | FrameIndex 0 = erster Frame
---   FrameIndex 1 = zweiter Frame
--- newtype FrameIndex = FrameIndex Int
 
 data Frame =
   Frame
