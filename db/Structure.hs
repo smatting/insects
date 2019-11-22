@@ -53,7 +53,7 @@ data AnnotatedFrame =
   AnnotatedFrame
     AnnotatedFrameId
     FrameId
-    [BoundingBox]
+    [BoundingBoxId]
 
 data Object =
   Object
