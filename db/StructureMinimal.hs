@@ -37,24 +37,38 @@ data Frame =
 data BoundingBox =
   BoundingBox
     BoundingBoxId
-    FrameId
     Int -- ^ x
     Int -- ^ y
     Int -- ^ width
     Int -- ^ height
 
+data Appearance =
+  Appearance
+    AppearanceId
+    FrameId
+    (Maybe BoundingBoxId)
+
 data Object =
   Object
     ObjectId
     [ObjectTag]
-    [BoundingBox]
+    [AppearanceId]
 
 data ObjectTag =
   ObjectTag
     ObjectTagId
     TagName
 
+data Collection =
+  Collection
+    CollectionId
+    CollectionName
+    [AppearanceId]
+
 data FrameId = FrameId Int
 data BoundingBoxId = BoundingBoxId Int
 data ObjectId = ObjectId Int
 data ObjectTagId = ObjectTagId Int
+data Timestamp = Timestamp Int
+data AppearanceId = AppearanceId Int
+data CollectionId = CollectionId Int
