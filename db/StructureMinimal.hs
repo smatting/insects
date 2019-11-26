@@ -63,7 +63,7 @@ data Collection =
   Collection
     CollectionId
     CollectionName
-    [AppearanceId]
+    [Object]
 
 data FrameId = FrameId Int
 data BoundingBoxId = BoundingBoxId Int
