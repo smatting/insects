@@ -7,4 +7,8 @@ ipdb
 ipython
 flask
 flask_socketio
-"python-socketio[client]"
+# python-socketio[client]
+flask_graphql
+graphene
+sqlalchemy
+graphene_sqlalchemy

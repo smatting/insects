@@ -94,3 +94,10 @@ Get live picture via:
 ```
 python3 ./tools/lastpic.py http://195.201.97.57:5000/ /media/usb/cam1/frames.db
 ```
+
+# Mount Server
+
+## Unmount
+diskutil unmount force /Users/levin/volumens/eco1
+## Mount
+sshfs -o IdentityFile=~/.ssh/id_eco_tunnel tunneldigger@195.201.97.57: /Users/levin/volumens/eco1
