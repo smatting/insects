@@ -1,5 +1,5 @@
 from database import Base
-from sqlalchemy import Table, Column, DateTime, Float, ForeignKey, Integer, String, Boolean, Enum
+from sqlalchemy import Table, Column, DateTime, Float, ForeignKey, Integer, String, Boolean
 from sqlalchemy.orm import backref, relationship
 
 
@@ -26,12 +26,12 @@ class Frame(Base):
         backref=backref('frames',
                         uselist=True,
                         cascade='delete,all'))
-    collections = relationship(
-        'collection',
-        secondary=frame_collection,
-        backref=backref('frames',
-                        uselist=True,
-                        cascade='delete,all'))
+    # collections = relationship(
+    #     'Collection',
+    #     secondary=frame_collection,
+    #     backref=backref('frames',
+    #                     uselist=True,
+    #                     cascade='delete,all'))
 
 
 class BoundingBox(Base):
@@ -50,36 +50,6 @@ class BoundingBox(Base):
                         cascade='delete,all'))
 
 
-class Appearance(Base):
-    __tablename__ = 'appearance'
-    id = Column(Integer, primary_key=True)
-    process_id = Column(Integer, ForeignKey('process.id'))
-    frame_id = Column(Integer, ForeignKey('frame.id'))
-    boundingbox_id = Column(Integer, ForeignKey('boundingbox.id'))
-    tracking_id = Column(Integer, ForeignKey('tracking.id'))
-#     properties = Column(Json)
-    process = relationship(
-        'process',
-        backref=backref('appearances',
-                        uselist=True,
-                        cascade='delete,all'))
-    frame = relationship(
-        'frame',
-        backref=backref('appearances',
-                        uselist=True,
-                        cascade='delete,all'))
-    boundingbox = relationship(
-        'boundingbox',
-        backref=backref('appearances',
-                        uselist=True,
-                        cascade='delete,all'))
-    tracking = relationship(
-        'tracking',
-        backref=backref('appearances',
-                        uselist=True,
-                        cascade='delete,all'))
-
-
 class Tracking(Base):
     __tablename__ = 'tracking'
     id = Column(Integer, primary_key=True)
@@ -92,6 +62,36 @@ class Tracking(Base):
                         cascade='delete,all'))
 
 
+class Appearance(Base):
+    __tablename__ = 'appearance'
+    id = Column(Integer, primary_key=True)
+    process_id = Column(Integer, ForeignKey('process.id'))
+    frame_id = Column(Integer, ForeignKey('frame.id'))
+    boundingbox_id = Column(Integer, ForeignKey('boundingbox.id'))
+    tracking_id = Column(Integer, ForeignKey('tracking.id'))
+# #     properties = Column(Json)
+    process = relationship(
+        Process,
+        backref=backref('appearances',
+                        uselist=True,
+                        cascade='delete,all'))
+    frame = relationship(
+        Frame,
+        backref=backref('appearances',
+                        uselist=True,
+                        cascade='delete,all'))
+    boundingbox = relationship(
+        BoundingBox,
+        backref=backref('appearances',
+                        uselist=True,
+                        cascade='delete,all'))
+    tracking = relationship(
+        Tracking,
+        backref=backref('appearances',
+                        uselist=True,
+                        cascade='delete,all'))
+
+
 class SpecimenClass(Base):
     __tablename__ = 'specimen_class'
     id = Column(Integer, primary_key=True)
@@ -99,7 +99,7 @@ class SpecimenClass(Base):
 #     properties = Column(Json)
     process = relationship(
         Process,
-        backref=backref('classes',
+        backref=backref('specimen_classes',
                         uselist=True,
                         cascade='delete,all'))
 
@@ -110,7 +110,7 @@ class Classification(Base):
     process_id = Column(Integer, ForeignKey('process.id'))
     appearance_id = Column(Integer, ForeignKey('appearance.id'))
     tracking_id = Column(Integer, ForeignKey('tracking.id'))
-    ctype = Column(Enum('APEARANCE', 'TRACKING'))
+    ctype = Column(String)
 #     properties = Column(Json)
     process = relationship(
         Process,
@@ -118,7 +118,7 @@ class Classification(Base):
                         uselist=True,
                         cascade='delete,all'))
     appearance = relationship(
-        Process,
+        Appearance,
         backref=backref('classifications',
                         uselist=True,
                         cascade='delete,all'))
@@ -128,7 +128,7 @@ class ClassificationValue(Base):
     __tablename__ = 'classification_value'
     id = Column(Integer, primary_key=True)
     classification_id = Column(Integer, ForeignKey('classification.id'))
-    class_id = Column(Integer, ForeignKey('class.id'))
+    class_id = Column(Integer, ForeignKey('specimen_class.id'))
     value = Column(Float)
     is_maximum = Column(Boolean)
     classification = relationship(
@@ -143,21 +143,19 @@ class ClassificationValue(Base):
                         cascade='delete,all'))
 
 
-
-
 class Collection(Base):
     __tablename__ = 'collection'
     id = Column(Integer, primary_key=True)
     process_id = Column(Integer, ForeignKey('process.id'))
     process = relationship(
         Process,
-        backref=backref('relations',
+        backref=backref('collections',
                         uselist=True,
                         cascade='delete,all'))
     frames = relationship(
         Frame,
         secondary=frame_collection,
-        backref=backref('relations',
+        backref=backref('collections',
                         uselist=True,
                         cascade='delete,all'))
 

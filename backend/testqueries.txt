@@ -1,0 +1,10 @@
+
+query {
+ 	allFrames {
+    edges {
+      node {
+        url
+      }
+    }
+  }
+}

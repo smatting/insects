@@ -1,5 +1,5 @@
-from models import Frame as FrameModel
 from models import Process as ProcessModel
+from models import Frame as FrameModel
 from models import BoundingBox as BoundingBoxModel
 from models import Appearance as AppearanceModel
 from models import Tracking as TrackingModel
@@ -13,15 +13,15 @@ from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyConnectionField, SQLAlchemyObjectType
 
 
-class Frame(SQLAlchemyObjectType):
-    class Meta:
-        model = FrameModel
-        interfaces = (relay.Node, )
-
-
 class Process(SQLAlchemyObjectType):
     class Meta:
         model = ProcessModel
+        interfaces = (relay.Node, )
+
+
+class Frame(SQLAlchemyObjectType):
+    class Meta:
+        model = FrameModel
         interfaces = (relay.Node, )
 
 
@@ -68,6 +68,8 @@ class Collection(SQLAlchemyObjectType):
 
 class Query(graphene.ObjectType):
     node = relay.Node.Field()
+    allFrames = SQLAlchemyConnectionField(Frame)
+    allCollections = SQLAlchemyConnectionField(Collection)
     # Allow only single column sorting
     # all_employees = SQLAlchemyConnectionField(
     #     Employee, sort=Employee.sort_argument())
@@ -77,6 +79,9 @@ class Query(graphene.ObjectType):
     # all_departments = SQLAlchemyConnectionField(Department, sort=None)
 
 
+# schema = graphene.Schema(query=Query, types=[
+#     Frame, Process, BoundingBox, Appearance, Tracking, SpecimenClass,
+#     Classification, ClassificationValue, Collection])
 schema = graphene.Schema(query=Query, types=[
-    Frame, Process, BoundingBox, Appearance, Tracking, SpecimenClass,
-    Classification, ClassificationValue, Collection])
+    Process, Frame, BoundingBox, Tracking, SpecimenClass, Appearance,
+    ClassificationValue, Collection])
