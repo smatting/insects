@@ -32,43 +32,51 @@ where
 data Frame =
   Frame
     FrameId
+    PocessId
     Timestamp
 
 data BoundingBox =
   BoundingBox
+    ProcessId
     BoundingBoxId
     Int -- ^ x
     Int -- ^ y
     Int -- ^ width
     Int -- ^ height
 
+data Process =
+  Process
+    ProcessId
+
+data ObjectTracking =
+  ObjectTracking
+    ObjectTrackingId
+    ProcessId
+    [AppearanceId]
+
 data Appearance =
   Appearance
     AppearanceId
+    ProcessId
     FrameId
     (Maybe BoundingBoxId)
 
-data Object =
-  Object
-    ObjectId
-    [ObjectTag]
-    [AppearanceId]
+data Class
+  = Class
+      ClassId
+      Name
 
-data ObjectTag =
-  ObjectTag
-    ObjectTagId
-    TagName
+data Classification
+  = AppearanceClassification
+      ProcessId
+      AppearanceId
+      [(Float, ClassId)]
+  | ObjectTrackingClassification 
+      ProcessId
+      ObjectTrackingId
+      [(Float, ClassId)]
 
-data Collection =
-  Collection
-    CollectionId
-    CollectionName
-    [Object]
-
-data FrameId = FrameId Int
-data BoundingBoxId = BoundingBoxId Int
-data ObjectId = ObjectId Int
-data ObjectTagId = ObjectTagId Int
-data Timestamp = Timestamp Int
-data AppearanceId = AppearanceId Int
-data CollectionId = CollectionId Int
+data Relation
+  = Relation
+      RelationId
+      ([ClipId | AppearanceId | RelationId])
