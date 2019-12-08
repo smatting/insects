@@ -104,3 +104,49 @@ sshfs -o IdentityFile=~/.ssh/id_eco_tunnel tunneldigger@195.201.97.57: /Users/le
 
 # how to sync
 gsutil copy -r /media/usb/cam1/frames gs://eco1/cam1/frames
+
+
+# Django Backend
+
+## Setup Database
+
+python manage.py migrate
+
+## Load test data
+
+python manage.py test
+
+## Start server
+
+python ./manage.py runserver
+
+## Example Query
+
+query {
+  allFrames(url: "test1") {
+    edges {
+      node {
+        id,
+        url
+      }
+    }
+  }
+}
+
+{
+  allCollections {
+    edges {
+      node {
+        frames {
+          edges {
+            node {
+              id
+              url
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

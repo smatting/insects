@@ -5,4 +5,7 @@ data
 *.png
 
 */__pycache__
+*/**/__pycache__
 */node_modules
+
+*.sqlite3
