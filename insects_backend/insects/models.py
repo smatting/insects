@@ -6,7 +6,7 @@ class Process(models.Model):
     kind = models.TextField()
 
 class Frame(models.Model):
-    timestamp = models.TimeField()
+    timestamp = models.DateTimeField()
     url = models.TextField()
     process = models.ForeignKey(
         Process, related_name="frames", on_delete=models.CASCADE
@@ -29,7 +29,7 @@ class Tracking(models.Model):
 
 
 class Appearance(models.Model):
-    timestamp = models.TimeField()
+    timestamp = models.DateTimeField()
     url = models.TextField()
     process = models.ForeignKey(
         Process, related_name="appearances", on_delete=models.CASCADE
