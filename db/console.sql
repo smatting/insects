@@ -6,7 +6,7 @@ create temp table foo as (
         'https://storage.googleapis.com/eco1/frames/' || id_new as url,
         time_stamp as timestamp,
         1 as process_id,
-        row_number() over (partition by event_time_stamp) as collection_id,
+        row_number() over (partition by event_time_stamp) as clip_id,
         id_new
     from
         src_frame_newname
@@ -22,21 +22,21 @@ insert into insects_frame (url, timestamp, process_id) (
         foo
 );
 
-truncate insects_collection cascade;
-insert into insects_collection (process_id, id)
+truncate insects_clip cascade;
+insert into insects_clip (process_id, id)
 select
     1 as process_id,
-    x.collection_id as id
+    x.clip_id as id
 from
     (
-    select distinct  collection_id from foo
+    select distinct  clip_id from foo
     ) x
 ;
 
-truncate insects_collection_frames;
-insert into insects_collection_frames (collection_id, frame_id)
+truncate insects_clip_frames;
+insert into insects_clip_frames (clip_id, frame_id)
 select
-    foo.collection_id,
+    foo.clip_id,
     f.id as frame_id
 from
     insects_frame f
