@@ -80,9 +80,9 @@ class ClassificationValue(models.Model):
     )
 
 
-class Collection(models.Model):
+class Clip(models.Model):
     process = models.ForeignKey(
-        Process, related_name="collections", on_delete=models.CASCADE
+        Process, related_name="clips", on_delete=models.CASCADE
     )
     frames = models.ManyToManyField(
-        Frame, related_name="collections")
+        Frame, related_name="clips")
