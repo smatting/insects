@@ -31,6 +31,7 @@ in python.withPackages(ps: with ps;
   graphene-django
   psycopg2
   django-cors-headers
+  django-filter
 ])).env
 
   
