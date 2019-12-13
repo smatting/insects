@@ -9,3 +9,9 @@ class Query(insects_backend.insects.schema.Query, graphene.ObjectType):
     pass
 
 schema = graphene.Schema(query=Query)
+
+
+if __name__ == "__main__":
+    ## Save schema
+    with open('schema.graphql', 'w'):
+        f.write(str(schema))

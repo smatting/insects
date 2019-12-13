@@ -54,9 +54,9 @@ class ClassificationValue(DjangoObjectType):
         interfaces = (relay.Node, )
 
 
-class Collection(DjangoObjectType):
+class Clip(DjangoObjectType):
     class Meta:
-        model = models.Collection
+        model = models.Clip
         interfaces = (relay.Node, )
 
 
@@ -64,8 +64,8 @@ class Query(ObjectType):
     frame = relay.Node.Field(Frame)
     all_frames = DjangoFilterConnectionField(Frame)
 
-    collection = relay.Node.Field(Collection)
-    all_collections = DjangoConnectionField(Collection)
+    clip = relay.Node.Field(Clip)
+    all_clips = DjangoConnectionField(Clip)
 
 
 class Mutation(ObjectType):
