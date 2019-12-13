@@ -23,6 +23,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 
 import ClipOverview from "./container/ClipOverview";
+// import ClipOverview from "./container/OverviewTest";
 import Clip from "./container/Clip";
 import LiveView from "./container/LiveView";
 
@@ -99,13 +100,15 @@ const Index = ({ view, updateView }) => {
 
 const epicMiddleware = createEpicMiddleware();
 
-let socket = io(process.env.APP_HOST);
-let socketIoMiddleware = createSocketIoMiddleware(
-  socket,
-  (type, action) => action.server
-);
+// let socket = io(process.env.APP_HOST);
+// let socketIoMiddleware = createSocketIoMiddleware(
+//   socket,
+//   (type, action) => action.server
+// );
 
-const middlewares = [epicMiddleware, socketIoMiddleware, logger];
+const middlewares = [epicMiddleware, logger];
+// const middlewares = [epicMiddleware, socketIoMiddleware, logger];
+
 
 const enhancer = compose(applyMiddleware(...middlewares));
 

@@ -120,6 +120,10 @@ python manage.py test
 
 python ./manage.py runserver
 
+## Export Schema
+
+./manage.py graphql_schema --out frontend/schema.json --watch
+
 ## Example Query
 
 query {
@@ -133,7 +137,7 @@ query {
   }
 }
 
-{
+query {
   allCollections {
     edges {
       node {

@@ -1,5 +1,5 @@
 from datetime import datetime
-from .models import Frame, Collection, Process
+from .models import Frame, Clip, Process
 
 
 def initialize():
@@ -14,10 +14,15 @@ def initialize():
     frame2.save()
     frame3.save()
 
-    coll1 = Collection(process=process)
+    coll1 = Clip(process=process)
 
     coll1.save()
     coll1.frames.add(frame1)
     coll1.frames.add(frame2)
 
-    coll1.save()
+    coll2 = Clip(process=process)
+
+    coll2.save()
+    coll2.frames.add(frame3)
+
+    coll2.save()

@@ -1,5 +1,4 @@
 opencv-python
-# picamera[array]
 pylint
 flake8
 ipdb
@@ -7,7 +6,6 @@ ipdb
 ipython
 flask
 flask_socketio
-# python-socketio[client]
 flask_graphql
 graphene
 sqlalchemy

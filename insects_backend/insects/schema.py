@@ -1,6 +1,6 @@
 from . import models
 
-from graphene import relay, ObjectType
+from graphene import relay, ObjectType, String, Field
 from graphene_django import DjangoObjectType, DjangoConnectionField
 from graphene_django.filter import DjangoFilterConnectionField
 
@@ -58,6 +58,11 @@ class Clip(DjangoObjectType):
     class Meta:
         model = models.Clip
         interfaces = (relay.Node, )
+
+    preview_frame = Field(Frame)
+
+    def resolve_preview_frame(self, info):
+        return self.frames.first()
 
 
 class Query(ObjectType):
