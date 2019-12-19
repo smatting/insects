@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash e9db449616fee85705a5e55fde67ed6e
+ * @relayHash 9ad8d4af9fd539737912f248386ade67
  */
 
 /* eslint-disable */
@@ -32,7 +32,7 @@ export type ClipOverviewQuery = {|
 
 /*
 query ClipOverviewQuery {
-  allClips(first: 100) {
+  allClips(first: 20) {
     edges {
       node {
         id
@@ -55,7 +55,7 @@ var v0 = [
   {
     "kind": "Literal",
     "name": "first",
-    "value": 100
+    "value": 20
   }
 ],
 v1 = {
@@ -78,7 +78,7 @@ return {
         "kind": "LinkedField",
         "alias": null,
         "name": "allClips",
-        "storageKey": "allClips(first:100)",
+        "storageKey": "allClips(first:20)",
         "args": (v0/*: any*/),
         "concreteType": "ClipConnection",
         "plural": false,
@@ -135,7 +135,7 @@ return {
         "kind": "LinkedField",
         "alias": null,
         "name": "allClips",
-        "storageKey": "allClips(first:100)",
+        "storageKey": "allClips(first:20)",
         "args": (v0/*: any*/),
         "concreteType": "ClipConnection",
         "plural": false,
@@ -190,11 +190,11 @@ return {
     "operationKind": "query",
     "name": "ClipOverviewQuery",
     "id": null,
-    "text": "query ClipOverviewQuery {\n  allClips(first: 100) {\n    edges {\n      node {\n        id\n        previewFrame {\n          ...ClipPreview_previewFrame\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ClipPreview_previewFrame on Frame {\n  url\n}\n",
+    "text": "query ClipOverviewQuery {\n  allClips(first: 20) {\n    edges {\n      node {\n        id\n        previewFrame {\n          ...ClipPreview_previewFrame\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ClipPreview_previewFrame on Frame {\n  url\n}\n",
     "metadata": {}
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '9a41000eaa319f6192001308ff9365aa';
+(node/*: any*/).hash = '75c1ee909108522d1da12eb6e6debf3d';
 module.exports = node;
