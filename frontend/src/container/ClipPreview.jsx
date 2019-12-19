@@ -1,5 +1,5 @@
 import type {ClipPreview_previewFrame} from './__generated__/ClipPreview_previewFrame.graphql';
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
 
 import React from 'react';
 import {graphql, createFragmentContainer} from 'react-relay'
@@ -26,6 +26,10 @@ const styles = theme => ({
     width: "100%"
     // height: 450
   },
+  img: {
+      width: 'auto',
+      height: '200px'
+  },
   icon: {
     color: "rgba(255, 255, 255, 0.54)"
   }
@@ -39,8 +43,7 @@ class ClipPreview extends React.Component<Props> {
 
     return (
         <GridListTile key={id}>
-        <img src={url} alt={"tile.author"} />
-        {console.log(url)}
+        <img src={url} alt={"tile.author"} className={classes.img} />
         <GridListTileBar
           title={"test"}
           subtitle={<span>by: {"tile.author"}</span>}

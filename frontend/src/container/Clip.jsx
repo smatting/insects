@@ -1,34 +1,90 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
+import {graphql, QueryRenderer} from 'react-relay';
 
-import ClipStripe from "./ClipStripe";
-import Image from "./Image";
 
-const useStyles = makeStyles(theme => ({
-  root: {}
-}));
+import GridList from "@material-ui/core/GridList";
 
-const ClipComponent = ({ clip, clipImages, activeImage }) => {
-  const classes = useStyles();
-  return (
-    <div className={classes.root}>
-      <Image {...activeImage} />
-      <ClipStripe images={clipImages} />
-    </div>
-  );
-};
+import Frame from "./Frame";
+import FramePreview from "./FramePreview";
+import Environment from './GraphQLEnvironment'
 
-const Clip = connect(
+
+const styles = theme => ({
+    root: {
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "space-around",
+        overflow: "hidden",
+        backgroundColor: theme.palette.background.paper
+      },
+      gridList: {
+        flexWrap: "nowrap",
+        // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
+        transform: "translateZ(0)"
+      },
+});
+
+
+class Clip extends React.Component {
+    query_render({error, props}) {
+        console.log(props)
+          if (error) {
+            return <div>Error!</div>;
+          }
+          if (!props) {
+            return <div>Loading...</div>;
+          }
+          return (
+            <div className={this.props.classes.root}>
+            <Frame frameId={this.props.activeFrame} />
+            <div className={this.props.classes.root}>
+              <GridList className={this.props.classes.gridList} cols={2.5}>
+              {props.clip.frames.edges.map(edge =>
+                  <FramePreview
+                  key={edge.node.id}
+                  frame={edge.node}
+                  />
+                  )}
+              </GridList>
+            </div>
+          </div>
+          );
+        }
+
+
+    render() {
+      const classes = this.props.classes;
+      return (
+        <QueryRenderer
+          environment={Environment}
+          query={graphql`
+          query ClipQuery {
+            clip(id: "Q2xpcDoyODQ4") {
+              frames {
+                edges {
+                  node {
+                      id
+                    ...FramePreview_frame
+                  }
+                }
+              }
+            }
+          }
+          `}
+          variables={{}}
+          render={this.query_render.bind(this)}
+        />
+      );
+    }
+  }
+
+
+export default connect(
   (state, ownProps) => ({
-    clip: state.clips[0],
-    clipImages: _.map(
-      state.clips.byKey["1"].images,
-      id => state.images.byKey[id]
-    ),
-    activeImage: state.images.byKey["1"]
+    activeFrame: "RnJhbWU6MjM1NjU5"
   }),
   (dispatch, ownProps) => ({})
-)(ClipComponent);
+)(withStyles(styles)(Clip));
 
-export default Clip;

@@ -23,7 +23,6 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 
 import ClipOverview from "./container/ClipOverview";
-// import ClipOverview from "./container/OverviewTest";
 import Clip from "./container/Clip";
 import LiveView from "./container/LiveView";
 
