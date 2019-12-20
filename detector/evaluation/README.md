@@ -3,13 +3,14 @@ The evaluation of the detector network is performed on images recorded in-sitio 
 
 The evaluation is performed with the application (here used for evaluation) notebook: [https://colab.research.google.com/drive/1rXrkEkHEbQ30tvESCDI9nTefSsH5XVfW#scrollTo=iOsT0M-k9QE8](https://colab.research.google.com/drive/1rXrkEkHEbQ30tvESCDI9nTefSsH5XVfW#scrollTo=iOsT0M-k9QE8).
 
-## Evaluation dataset(s)
+## Evaluation results
 
-### [eval_n100.tar.gx](https://drive.google.com/open?id=1rLnf1QTKV59TKnP4KJAvgs8pRdRr2uc3)
-The first 100 recorded frames.
+1. A network (tiny as well as full) trained on the full other insects training dataset failed to detect any of our Heimchens from any of the recording days. Unfortunately, it seems that the network has to be re-trained to detect the Heimchen.
 
-### [eval_n1000.tar.gx](https://drive.google.com/open?id=1rLnf1QTKV59TKnP4KJAvgs8pRdRr2uc3)
-The first 1000 recorded frames.
+## Evaluation dataset
+
+### [eval_n100.tar.gx](https://drive.google.com/open?id=1JLRetkXjsA02xtABBdVqRTZzpS48A6KL)
+Randomly selected 100 recorded frames with insects showing.
 
 
 ## Collecting the data
@@ -24,3 +25,9 @@ and entered in the access URI `https://storage.googleapis.com/eco1/frames/{id_ne
 All returned frames were triggered by a movement event and are suspected to contain insects. Hence, they are the ideal candidates for an evaluation dataset. The download functionality is provided in the file [download_frames.py](download_frames.py).
 
 After new recordings were generated, the data has to be collected again.
+
+Note that many frames are actual no real insect recordings. Here we have to go by recording date:
+
+- 2019-10-18: not insects from here
+- 2019-11-16: from here insects
+
