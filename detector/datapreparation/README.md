@@ -12,36 +12,36 @@ Use `train_test_split.py` to generate the train and test splits.
 
 ## Databases
 
-### [coift/](coift/)]
-ID: coift
-Source: http://www.vision.ime.usp.br/~lucyacm/thesis/coift.html
-N: 129
+### [coift/](coift/)
+- ID: coift
+- Source: http://www.vision.ime.usp.br/~lucyacm/thesis/coift.html
+- N: 129
 
 Contains a few hundred images with associated exact segmentation masks. All insects were recorded in good light and with the full body in various poses in natural surroundings.
 
 Well usable. I can extract bounding boxes from the segmentation images.
 
 ### [stonefly9/](stonefly9/)
-ID: stonefly9
-Source: http://web.engr.oregonstate.edu/~tgd/bugid/stonefly9/
-N: 3844
+- ID: stonefly9
+- Source: http://web.engr.oregonstate.edu/~tgd/bugid/stonefly9/
+- N: 3844
 
 Contains a few hundred images with associated rough segmentation masks. Contains only stoneflies, which are very small insects, recorded in petri-dishes with ok lightning conditions in various poses.
 
 Can be used if enough other insect images are in the same training data. I can extract bounding boxes from the segmentation images.
 
-### [IP102/](IP102/)]
-ID IP102
-Source: https://github.com/xpwu95/IP102
-N: 18975
+### [IP102/](IP102/)
+- ID: IP102
+- Source: https://github.com/xpwu95/IP102
+- N: 18975
 
 Contains a few thousand insect images crawled from the web, usually in their natural surroundings and rather centered. Also contains associated bounding boxes for ~19k images.
 
 Well usable. I can transform the bounding box format.
 
-### [valan/](valan/)]
-ID: valan
-Source: https://datadryad.org/stash/dataset/doi:10.5061/dryad.20ch6p5
+### [valan/](valan/)
+- ID: valan
+- Source: https://datadryad.org/stash/dataset/doi:10.5061/dryad.20ch6p5
 
 Contains a few hundred images (or somethimes rather links to images) of very small insects of the same family. No segmentation. This dataset is rather for exacts type classification than insect detection purposes.
 
