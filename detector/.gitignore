@@ -1,4 +1,5 @@
 .vscode
+env.sh
 dataprepared/*
 videodata/
 models/insects_yolov3_final_fulldataset.weights
