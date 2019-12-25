@@ -45,6 +45,7 @@ def main():
             raise Exception(f'No sub-directory named like prepareddata found in {datasetdir} of {datasetname}.')
 
         datasetfiles[datasetname] = next(os.walk(os.path.join(datasetdir, imagedatadir, 'images')))[2]
+        datasetfiles[datasetname] = [fname for fname in datasetfiles[datasetname] if not fname.endswith('.txt')]
 
     print(f'Parsed datasets {datasetfiles.keys()}.')
 

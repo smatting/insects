@@ -31,3 +31,17 @@ Note that many frames are actual no real insect recordings. Here we have to go b
 - 2019-10-18: not insects from here
 - 2019-11-16: from here insects
 
+
+### Annotation
+
+With http://www.robots.ox.ac.uk/~vgg/software/via/via_demo.html, the project is saved locally as JSON file. The labels are exported in CSV format into a file, which can then be parsed with `scripts/annotation_transformer.py`. The final format is one text file per image (places in a different folder) with the same basename but `.txt` ending. The file should contain a single line for each object in the associated image with the format:
+
+```bash
+<object-id> <x> <y> <width> <height>
+```
+
+Note that the object-ids are continuous and zero-based class identifiers. The numeric values of the bounding-boxes are all not pixel integers, but rather fractions of the image width respectively height. And the x, y values denote not the top-left corner, but rather the center of the box. A file can contain between zero and any number of entries / lines.
+
+Remember to put the folder “images” and folder “annotations” in the same parent directory, as the darknet code look for annotation files this way (by default).
+
+Backups of the label creation data can be found in the `labelcreation/` subfolder.

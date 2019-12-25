@@ -12,6 +12,13 @@ Use `train_test_split.py` to generate the train and test splits.
 
 ## Databases
 
+### [cricketsN/](crickets/)
+- ID: cricketsN
+- Source: Our own recordings
+- N: N
+
+Contains exactly N randomly picked images with crickets recorded by us. See the [README.md](crickets/) in the folder for more information.
+
 ### [coift/](coift/)
 - ID: coift
 - Source: http://www.vision.ime.usp.br/~lucyacm/thesis/coift.html
