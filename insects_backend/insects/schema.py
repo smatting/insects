@@ -77,6 +77,17 @@ class Query(ObjectType):
     collection = relay.Node.Field(Collection)
     # all_clips = DjangoConnectionField(Clip)
 
+
+# Stefan: Example of manual resolve to a List
+# class Query(ObjectType):
+#     frame = relay.Node.Field(Frame)
+#     all_frames = Field(List(Frame))
+#     def resolve_all_frames(self, info):
+#         frames = [models.Frame(id=1,url="http://"), models.Frame(id=2,url="http://") ]
+#         return frames
+#     collection = relay.Node.Field(Collection)
+
+
 class Mutation(ObjectType):
     pass
 
