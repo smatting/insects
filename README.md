@@ -183,7 +183,7 @@ query {
 
 ```graphql
 Query Bla {
-    frames(begin: DateTime!, end: DateTime!) {
+    frames(begin: DateTime!, end: DateTime!, nSample: Int) {
         id
         timestamp
         url
