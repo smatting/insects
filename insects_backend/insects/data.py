@@ -16,10 +16,10 @@ def initialize():
     coll1.save()
     coll1.frames.add(frame1)
     coll1.frames.add(frame2)
+    coll1.save()
 
     coll2 = Collection(name='Bar', date_created=datetime.now())
 
     coll2.save()
     coll2.frames.add(frame3)
-
     coll2.save()

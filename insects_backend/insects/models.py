@@ -13,7 +13,8 @@ class Frame(models.Model):
 class Collection(models.Model):
     name = models.TextField()
     date_created = models.DateTimeField()
-    frames = models.ForeignKey(Frame, related_name="collections", on_delete=models.DO_NOTHING)
+
+    frames = models.ManyToManyField(Frame, related_name='collections')
 
 
 # class BoundingBox(models.Model):

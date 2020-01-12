@@ -5,9 +5,9 @@ from graphene_django import DjangoObjectType, DjangoConnectionField
 from graphene_django.filter import DjangoFilterConnectionField
 
 
-class Process(DjangoObjectType):
+class Collection(DjangoObjectType):
     class Meta:
-        model = models.Process
+        model = models.Collection
         interfaces = (relay.Node, )
 
 
@@ -17,64 +17,65 @@ class Frame(DjangoObjectType):
         interfaces = (relay.Node, )
         filter_fields = ['url']
 
+    thumb_url = Field(String)
+
     def resolve_thumb_url(self, info):
         return self.url + 'something'
 
 
-class BoundingBox(DjangoObjectType):
-    class Meta:
-        model = models.BoundingBox
-        interfaces = (relay.Node, )
+# class BoundingBox(DjangoObjectType):
+#     class Meta:
+#         model = models.BoundingBox
+#         interfaces = (relay.Node, )
 
 
-class Appearance(DjangoObjectType):
-    class Meta:
-        model = models.Appearance
-        interfaces = (relay.Node, )
+# class Appearance(DjangoObjectType):
+#     class Meta:
+#         model = models.Appearance
+#         interfaces = (relay.Node, )
 
 
-class Tracking(DjangoObjectType):
-    class Meta:
-        model = models.Tracking
-        interfaces = (relay.Node, )
+# class Tracking(DjangoObjectType):
+#     class Meta:
+#         model = models.Tracking
+#         interfaces = (relay.Node, )
 
 
-class Species(DjangoObjectType):
-    class Meta:
-        model = models.Species
-        interfaces = (relay.Node, )
+# class Species(DjangoObjectType):
+#     class Meta:
+#         model = models.Species
+#         interfaces = (relay.Node, )
 
 
-class Classification(DjangoObjectType):
-    class Meta:
-        model = models.Classification
-        interfaces = (relay.Node, )
+# class Classification(DjangoObjectType):
+#     class Meta:
+#         model = models.Classification
+#         interfaces = (relay.Node, )
 
 
-class ClassificationValue(DjangoObjectType):
-    class Meta:
-        model = models.ClassificationValue
-        interfaces = (relay.Node, )
+# class ClassificationValue(DjangoObjectType):
+#     class Meta:
+#         model = models.ClassificationValue
+#         interfaces = (relay.Node, )
 
 
-class Clip(DjangoObjectType):
-    class Meta:
-        model = models.Clip
-        interfaces = (relay.Node, )
+# class Clip(DjangoObjectType):
+#     class Meta:
+#         model = models.Clip
+#         interfaces = (relay.Node, )
 
-    preview_frame = Field(Frame)
+#     preview_frame = Field(Frame)
 
-    def resolve_preview_frame(self, info):
-        return self.frames.first()
+#     def resolve_preview_frame(self, info):
+#         return self.frames.first()
 
 
 class Query(ObjectType):
     frame = relay.Node.Field(Frame)
     all_frames = DjangoFilterConnectionField(Frame)
 
-    clip = relay.Node.Field(Clip)
-    all_clips = DjangoConnectionField(Clip)
-
+    collection = relay.Node.Field(Collection)
+    # all_clips = DjangoConnectionField(Clip)
 
 class Mutation(ObjectType):
     pass
