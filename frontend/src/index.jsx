@@ -22,8 +22,8 @@ import Typography from "@material-ui/core/Typography";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 
-import ClipOverview from "./container/ClipOverview";
-import Clip from "./container/Clip";
+import Browser from "./container/Browser";
+// import Clip from "./container/Clip";
 import LiveView from "./container/LiveView";
 
 const drawerWidth = 240;
@@ -89,8 +89,8 @@ const Index = ({ view, updateView }) => {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />
-        {view == "OVERVIEW" ? <ClipOverview /> : null}
-        {view == "CLIP" ? <Clip /> : null}
+        {view == "OVERVIEW" ? <Browser /> : null}
+        {/* {view == "CLIP" ? <Clip /> : null} */}
         {view == "LIVE" ? <LiveView /> : null}
       </main>
     </div>
