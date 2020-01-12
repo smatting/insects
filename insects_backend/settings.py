@@ -82,16 +82,19 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    },
+    'prod': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': '195.201.97.57',
+        'USER': os.environ['ECO_USER'],
+        'PASSWORD': os.environ['ECO_PASSWORD'],
+        'NAME': 'eco'
     }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'HOST': '195.201.97.57',
-    #     'USER': os.environ['ECO_USER'],
-    #     'PASSWORD': os.environ['ECO_PASSWORD'],
-    #     'NAME': 'eco'
-    # }
 }
 
+APPENV = os.environ.get('APPENV')
+if APPENV is not None:
+    DATABASES['default'] = DATABASES[APPENV]
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
