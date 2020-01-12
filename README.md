@@ -154,3 +154,59 @@ query {
   }
 }
 
+
+# Verbleibende Workpackages
+
+- Data Browser
+    * Daten-Modell
+    * React View - Browsing
+    * React View - Browsing verkabeln (Backend schreiben)
+    * React View - Warenkorb
+    * React View - Warenkorb verkabeln  (Backend schreiben)
+- Annotation / Model Vizualazier
+    * React View
+    * React View verkabeln
+- Live View
+- Dataset-View
+   * verkabeln
+- Daten labelling
+    * Micrsoft- React component einbauen
+    * verkabeln
+- Data Scientist Toolkit
+    * Backend für read/write
+    * Python Library schreiben
+- Graph View von labelling über Zeit
+    * view
+    * verkabeln (backend schreiben)
+
+
+
+```graphql
+Query Bla {
+    frames(begin: DateTime!, end: DateTime!) {
+        id
+        timestamp
+        url
+        thumbnailUrl
+    }
+
+    collections() {
+    }
+
+    collection(collectionId: String) {
+        frames(begin: DateTime!, end: DateTime!) {
+            labels: {
+                processId
+            }
+        },
+        labelProcesses : {
+            id
+            name
+            dateCreated
+        }
+
+    }
+
+
+}
+```
