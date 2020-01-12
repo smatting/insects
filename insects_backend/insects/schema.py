@@ -17,6 +17,9 @@ class Frame(DjangoObjectType):
         interfaces = (relay.Node, )
         filter_fields = ['url']
 
+    def resolve_thumb_url(self, info):
+        return self.url + 'something'
+
 
 class BoundingBox(DjangoObjectType):
     class Meta:
