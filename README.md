@@ -210,3 +210,19 @@ Query Bla {
 
 }
 ```
+
+# 2020-01-15
+
+heimchen: acheta domesticus
+
+Wed Jan 15 11:09:11 CET 2020
+wanderheuschrecken (locasta migratoria)
+
+Wed Jan 15 12:32:08 CET 2020
+wuestenheuschrecken (schistocerca gregaria)
+
+
+To start an ipython shell inside the django project:
+```
+APPENV=prod python3 manage.py shell
+```

@@ -1,6 +1,10 @@
 from . import models
+from . import db
+import datetime
+import re
+import base64
 
-from graphene import relay, ObjectType, String, Field, List
+from graphene import relay, ObjectType, String, Field, List, Argument, Int, DateTime, ID
 from graphene_django import DjangoObjectType, DjangoConnectionField
 from graphene_django.filter import DjangoFilterConnectionField
 
@@ -69,13 +73,34 @@ class Frame(DjangoObjectType):
 #     def resolve_preview_frame(self, info):
 #         return self.frames.first()
 
+def parse_frame_id(s):
+    if s is None:
+        return None
+    x = base64.b64decode(s).decode('utf8')
+    m = re.match(r'Frame:(\d+)', x)
+    if m is None:
+        return None
+    else:
+        digits, = m.groups()
+        return int(digits)
+
 
 class Query(ObjectType):
     frame = relay.Node.Field(Frame)
     all_frames = DjangoFilterConnectionField(Frame)
 
     collection = relay.Node.Field(Collection)
-    # all_clips = DjangoConnectionField(Clip)
+
+    frames = Field(List(Frame),
+                   tbegin=Argument(DateTime, required=True),
+                   tend=Argument(DateTime, required=True),
+                   nsamples=Argument(Int, required=True),
+                   after=Argument(ID, required=False)
+                   )
+
+    def resolve_frames(self, info, tbegin, tend, nsamples, after=None):
+        frame_id = parse_frame_id(after)
+        return db.get_frames(tbegin=tbegin, tend=tend, nsamples=nsamples, after=frame_id)
 
 
 # Stefan: Example of manual resolve to a List
