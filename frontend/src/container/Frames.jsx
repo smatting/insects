@@ -29,7 +29,7 @@ class Frames extends React.Component {
         }
         console.log(props)
         return (
-        <FrameGrid frames={getNodes(props.allFrames)} />
+        <FrameGrid frames={getNodes(props.frames)} />
         );
       }
 
@@ -41,14 +41,12 @@ class Frames extends React.Component {
         environment={Environment}
         query={graphql`
         query FramesQuery {
-            allFrames(url: "test1") {
-              edges {
-                node {
-                  id
-                  url
-                  thumbUrl
-                }
-              }
+            frames(tbegin: "2019-11-01T00:00:00",
+                   tend: "2019-11-15T00:00:00",
+                   nframes: 10) {
+                id
+                url
+                thumbnail
             }
           }
         `}

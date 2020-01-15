@@ -27,7 +27,8 @@ const FrameTile = ({thumbUrl}) => {
     const classes = useStyles();
     return (
     <GridListTile>
-    <img src={thumbUrl} alt={"tile.author"} className={classes.img} />
+        <span>tile</span>
+    <img src={thumbnail} alt={"tile.author"} className={classes.img} />
     <GridListTileBar
       title={"test"}
       subtitle={<span>by: {"tile.author"}</span>}
@@ -37,7 +38,8 @@ const FrameTile = ({thumbUrl}) => {
         </IconButton>
       }
     />
-  </GridListTile>)
+</GridListTile>
+    )
 }
 
 const FrameGrid = ({frames}) => {
