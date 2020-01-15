@@ -227,12 +227,12 @@ To start an ipython shell inside the django project:
 APPENV=prod python3 manage.py shell
 ```
 
-get a subsample
+get a equidistant subsample
 ```graphql
 {
     frames(tbegin: "2019-11-01T00:00:00",
            tend: "2019-11-15T00:00:00",
-           nsamples: 10) {
+           nframes: 10) {
       id,
       url,
       timestamp,
@@ -247,7 +247,7 @@ get a continuous page
     frames(tbegin: "2019-11-01T00:00:00",
            tend: "2019-11-15T00:00:00",
            after: "RnJhbWU6Nzk5NzU=",
-           nsamples: 10) {
+           nframes: 10) {
       id,
       url,
       timestamp,

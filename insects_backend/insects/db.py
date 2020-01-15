@@ -70,7 +70,7 @@ def get_frame(frame_id):
     return make_frame(id_, timestamp, url)
 
 
-def get_frames_continuous(tbegin, tend, after, nsamples=10):
+def get_frames_continuous(tbegin, tend, after, nframes=10):
     frame = get_frame(after)
     cursor = connection.cursor()
     q = '''
@@ -86,7 +86,7 @@ def get_frames_continuous(tbegin, tend, after, nsamples=10):
     order by timestamp asc, url asc
     limit %s
     '''
-    cursor.execute(q, (frame.timestamp, tend, nsamples))
+    cursor.execute(q, (frame.timestamp, tend, nframes))
     frames = []
     for (id_, timestamp, url) in cursor.fetchall():
         frame = make_frame(id_, timestamp, url)
@@ -94,7 +94,7 @@ def get_frames_continuous(tbegin, tend, after, nsamples=10):
     return frames
 
 
-def get_frames_subsample(tbegin, tend, nsamples=10):
+def get_frames_subsample(tbegin, tend, nframes=10):
     cursor = connection.cursor()
 
     q = '''
@@ -126,7 +126,7 @@ def get_frames_subsample(tbegin, tend, nsamples=10):
     ) x
         where x.idx in %s
     '''
-    idxs = tuple(equidx(n, nsamples))
+    idxs = tuple(equidx(n, nframes))
     cursor.execute(q2, (tbegin, tend, idxs))
     rows = cursor.fetchall()
 
@@ -138,9 +138,9 @@ def get_frames_subsample(tbegin, tend, nsamples=10):
     return frames
 
 
-def get_frames(tbegin, tend, nsamples, after=None):
+def get_frames(tbegin, tend, nframes, after=None):
     '''
-    If `after` is provided return the next nsamples after it
+    If `after` is provided return the next nframes after it
     else return a equidistant sample in [tbegin, tend].
 
     Args:
@@ -149,9 +149,9 @@ def get_frames(tbegin, tend, nsamples, after=None):
     if after is not None:
         return get_frames_continuous(tbegin=tbegin,
                                      tend=tend,
-                                     nsamples=nsamples,
+                                     nframes=nframes,
                                      after=after)
     else:
         return get_frames_subsample(tbegin=tbegin,
                                     tend=tend,
-                                    nsamples=nsamples)
+                                    nframes=nframes)

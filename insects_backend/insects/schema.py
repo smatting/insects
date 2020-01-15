@@ -94,13 +94,13 @@ class Query(ObjectType):
     frames = Field(List(Frame),
                    tbegin=Argument(DateTime, required=True),
                    tend=Argument(DateTime, required=True),
-                   nsamples=Argument(Int, required=True),
+                   nframes=Argument(Int, required=True),
                    after=Argument(ID, required=False)
                    )
 
-    def resolve_frames(self, info, tbegin, tend, nsamples, after=None):
+    def resolve_frames(self, info, tbegin, tend, nframes, after=None):
         frame_id = parse_frame_id(after)
-        return db.get_frames(tbegin=tbegin, tend=tend, nsamples=nsamples, after=frame_id)
+        return db.get_frames(tbegin=tbegin, tend=tend, nframes=nframes, after=frame_id)
 
 
 # Stefan: Example of manual resolve to a List
