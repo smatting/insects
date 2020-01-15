@@ -83,6 +83,7 @@ def get_frames_continuous(tbegin, tend, after, nsamples=10):
     where
         %s < timestamp
         and timestamp < %s
+    order by timestamp asc, url asc
     limit %s
     '''
     cursor.execute(q, (frame.timestamp, tend, nsamples))
@@ -116,7 +117,7 @@ def get_frames_subsample(tbegin, tend, nsamples=10):
     from (
         select
             *,
-            row_number() over (order by timestamp asc) as idx
+            row_number() over (order by timestamp asc, url asc) as idx
         from
             insects_frame
         where
