@@ -29,7 +29,7 @@ class Frames extends React.Component {
         }
         console.log(props)
         return (
-        <FrameGrid frames={getNodes(props.frames)} />
+        <FrameGrid frames={props.frames} />
         );
       }
 
@@ -46,7 +46,7 @@ class Frames extends React.Component {
                    nframes: 10) {
                 id
                 url
-                thumbnail
+                timestamp
             }
           }
         `}

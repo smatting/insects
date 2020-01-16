@@ -23,15 +23,17 @@ const useStyles = makeStyles({
 );
 
 
-const FrameTile = ({thumbUrl}) => {
+const FrameTile = ({url, timestamp}) => {
     const classes = useStyles();
+    const height = 200;
+    const thumbnail = `http://195.201.97.57:5556/unsafe/0x${height}/` + url.replace(/(^\w+:|^)\/\//, '')
+    console.log(timestamp)
     return (
     <GridListTile>
-        <span>tile</span>
-    <img src={thumbnail} alt={"tile.author"} className={classes.img} />
+    <img src={thumbnail} alt={timestamp} className={classes.img} />
     <GridListTileBar
-      title={"test"}
-      subtitle={<span>by: {"tile.author"}</span>}
+      title={timestamp}
+    //   subtitle={<span>by: {"tile.author"}</span>}
       actionIcon={
         <IconButton aria-label={`info about`} className={classes.icon}>
           <InfoIcon />

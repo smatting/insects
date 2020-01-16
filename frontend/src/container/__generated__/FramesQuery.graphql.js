@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 0c0b1e38b0626190d824e434f345667e
+ * @relayHash 95c973a05f12d77a9826baf0ec73ae14
  */
 
 /* eslint-disable */
@@ -14,7 +14,7 @@ export type FramesQueryResponse = {|
   +frames: ?$ReadOnlyArray<?{|
     +id: string,
     +url: string,
-    +thumbnail: string,
+    +timestamp: any,
   |}>
 |};
 export type FramesQuery = {|
@@ -29,7 +29,7 @@ query FramesQuery {
   frames(tbegin: "2019-11-01T00:00:00", tend: "2019-11-15T00:00:00", nframes: 10) {
     id
     url
-    thumbnail
+    timestamp
   }
 }
 */
@@ -78,7 +78,7 @@ var v0 = [
       {
         "kind": "ScalarField",
         "alias": null,
-        "name": "thumbnail",
+        "name": "timestamp",
         "args": null,
         "storageKey": null
       }
@@ -105,11 +105,11 @@ return {
     "operationKind": "query",
     "name": "FramesQuery",
     "id": null,
-    "text": "query FramesQuery {\n  frames(tbegin: \"2019-11-01T00:00:00\", tend: \"2019-11-15T00:00:00\", nframes: 10) {\n    id\n    url\n    thumbnail\n  }\n}\n",
+    "text": "query FramesQuery {\n  frames(tbegin: \"2019-11-01T00:00:00\", tend: \"2019-11-15T00:00:00\", nframes: 10) {\n    id\n    url\n    timestamp\n  }\n}\n",
     "metadata": {}
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = 'd8c5c2ced0d32774247fb02ca575e2d2';
+(node/*: any*/).hash = '66b4a60b08812c7af8c5470df6b2318b';
 module.exports = node;
