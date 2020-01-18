@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import BrowserNav from './BrowserNav'
 import Frames from './Frames'
+import DateRange from './DateRange'
 
 
 const useStyles = makeStyles({
@@ -25,6 +26,7 @@ const Browser = () => {
                 endDate={endDate}
                 setEndDate={setEndDate}
                 />
+            <DateRange />
             <Frames startDate={startDate} endDate={endDate}/>
         </div>
     )

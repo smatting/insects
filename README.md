@@ -255,3 +255,22 @@ get a continuous page
     }
 }
 ```
+
+
+stack of: [b, e]
+set from outside: clear stack
+zoom in button:
+    - if zoomable (select and domain not equal): 
+        - add domain to stack
+        - set domain to [b, e] & selection to [b, e]
+zoom out button:
+    - if stack not empty:
+        - pop domain of stack
+        - (adapt domain and selction so that selection is conatined in domain)
+    - if stack is empty:
+        - widen domain by x% in both directions
+
+
+https://codesandbox.io/s/rw97j317p
+https://observablehq.com/@d3/d3-scaletime
+https://observablehq.com/@d3/scale-ticks
