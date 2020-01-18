@@ -23,10 +23,9 @@ const useStyles = makeStyles({
 );
 
 
-const FrameTile = ({url, timestamp}) => {
+const FrameTile = ({url, timestamp, thumbnail}) => {
     const classes = useStyles();
     const height = 200;
-    const thumbnail = `http://195.201.97.57:5556/unsafe/0x${height}/` + url.replace(/(^\w+:|^)\/\//, '')
     console.log(timestamp)
     return (
     <GridListTile>

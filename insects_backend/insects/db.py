@@ -5,7 +5,7 @@ from . import models
 
 from django.db import connection
 
-THUMB_HEIGHT = 280
+THUMB_HEIGHT = 200
 THUMB_WIDTH = int(1.3 * THUMB_HEIGHT)
 THUMB_PREFIX = f'http://195.201.97.57:5556/unsafe/{THUMB_WIDTH}x{THUMB_HEIGHT}/'
 

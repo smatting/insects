@@ -47,6 +47,7 @@ class Frames extends React.Component {
                 id
                 url
                 timestamp
+                thumbnail
             }
           }
         `}
