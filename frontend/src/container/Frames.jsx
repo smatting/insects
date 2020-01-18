@@ -27,7 +27,7 @@ class Frames extends React.Component {
         if (!props) {
           return <div>Loading...</div>;
         }
-        console.log(props)
+        console.log('Frames props', props)
         return (
         <FrameGrid frames={props.frames} />
         );
@@ -40,9 +40,9 @@ class Frames extends React.Component {
       <QueryRenderer
         environment={Environment}
         query={graphql`
-        query FramesQuery {
-            frames(tbegin: "2019-11-01T00:00:00",
-                   tend: "2019-11-15T00:00:00",
+        query FramesQuery($tbegin: DateTime!, $tend: DateTime!) {
+            frames(tbegin: $tbegin,
+                   tend: $tend,
                    nframes: 10) {
                 id
                 url
@@ -51,7 +51,7 @@ class Frames extends React.Component {
             }
           }
         `}
-        variables={{}}
+        variables={{tbegin: this.props.startDate, tend: this.props.endDate}}
         render={this.query_render.bind(this)}
       />
     );

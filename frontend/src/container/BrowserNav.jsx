@@ -8,10 +8,10 @@ import {
   KeyboardDatePicker,
 } from '@material-ui/pickers';
 
-const BrowserNav = () => {
+const BrowserNav = ({startDate, setStartDate, endDate, setEndDate}) => {
   // The first commit of Material-UI
-  const [startDate, setStartDate] = React.useState(new Date('2014-08-18T21:11:54'));
-  const [endDate, setEndDate] = React.useState(new Date('2014-08-18T21:11:54'));
+  // const [startDate, setStartDate] = React.useState(new Date('2014-08-18T21:11:54'));
+  // const [endDate, setEndDate] = React.useState(new Date('2014-08-18T21:11:54'));
 
 
 //   const handleDateChange = date => {

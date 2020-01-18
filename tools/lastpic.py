@@ -68,8 +68,8 @@ def main(cfg):
         print('Found new picture!')
         base64_string = read_file(state.file)
 
-        sio.emit('action', {"type": 'LIVEIMAGE_PUSH', "liveImage": base64_string}, callback=gen_callback(server_received_image))
         with server_received_image:
+            sio.emit('action', {"type": 'LIVEIMAGE_PUSH', "liveImage": base64_string}, callback=gen_callback(server_received_image))
             server_received_image.wait()
         print('Image pushed to server')
 

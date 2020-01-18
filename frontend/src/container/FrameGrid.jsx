@@ -26,7 +26,7 @@ const useStyles = makeStyles({
 const FrameTile = ({url, timestamp, thumbnail}) => {
     const classes = useStyles();
     const height = 200;
-    console.log(timestamp)
+    // console.log(timestamp)
     return (
     <GridListTile>
     <img src={thumbnail} alt={timestamp} className={classes.img} />

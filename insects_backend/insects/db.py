@@ -126,6 +126,9 @@ def get_frames_subsample(tbegin, tend, nframes=10):
     ) x
         where x.idx in %s
     '''
+    if n <= 0 or nframes <= 0:
+        return []
+
     idxs = tuple(equidx(n, nframes))
     cursor.execute(q2, (tbegin, tend, idxs))
     rows = cursor.fetchall()

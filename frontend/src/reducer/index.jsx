@@ -67,7 +67,7 @@ const dummyAnnotation = [
 ];
 const dummySelection = { clipId: "1", firstImgId: "2", lastImgId: "4" };
 
-const view = createReducer("LIVE", {
+const view = createReducer("OVERVIEW", {
   VIEW_UPDATE: (state, action) => action.view
 });
 

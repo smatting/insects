@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 05910fedb2e40e43f206c2a6e5cc335f
+ * @relayHash ac32104961f9eafd0cfd23e2a476f04d
  */
 
 /* eslint-disable */
@@ -9,7 +9,10 @@
 
 /*::
 import type { ConcreteRequest } from 'relay-runtime';
-export type FramesQueryVariables = {||};
+export type FramesQueryVariables = {|
+  tbegin: any,
+  tend: any,
+|};
 export type FramesQueryResponse = {|
   +frames: ?$ReadOnlyArray<?{|
     +id: string,
@@ -26,8 +29,11 @@ export type FramesQuery = {|
 
 
 /*
-query FramesQuery {
-  frames(tbegin: "2019-11-01T00:00:00", tend: "2019-11-15T00:00:00", nframes: 10) {
+query FramesQuery(
+  $tbegin: DateTime!
+  $tend: DateTime!
+) {
+  frames(tbegin: $tbegin, tend: $tend, nframes: 10) {
     id
     url
     timestamp
@@ -39,10 +45,24 @@ query FramesQuery {
 const node/*: ConcreteRequest*/ = (function(){
 var v0 = [
   {
+    "kind": "LocalArgument",
+    "name": "tbegin",
+    "type": "DateTime!",
+    "defaultValue": null
+  },
+  {
+    "kind": "LocalArgument",
+    "name": "tend",
+    "type": "DateTime!",
+    "defaultValue": null
+  }
+],
+v1 = [
+  {
     "kind": "LinkedField",
     "alias": null,
     "name": "frames",
-    "storageKey": "frames(nframes:10,tbegin:\"2019-11-01T00:00:00\",tend:\"2019-11-15T00:00:00\")",
+    "storageKey": null,
     "args": [
       {
         "kind": "Literal",
@@ -50,14 +70,14 @@ var v0 = [
         "value": 10
       },
       {
-        "kind": "Literal",
+        "kind": "Variable",
         "name": "tbegin",
-        "value": "2019-11-01T00:00:00"
+        "variableName": "tbegin"
       },
       {
-        "kind": "Literal",
+        "kind": "Variable",
         "name": "tend",
-        "value": "2019-11-15T00:00:00"
+        "variableName": "tend"
       }
     ],
     "concreteType": "Frame",
@@ -101,24 +121,24 @@ return {
     "name": "FramesQuery",
     "type": "Query",
     "metadata": null,
-    "argumentDefinitions": [],
-    "selections": (v0/*: any*/)
+    "argumentDefinitions": (v0/*: any*/),
+    "selections": (v1/*: any*/)
   },
   "operation": {
     "kind": "Operation",
     "name": "FramesQuery",
-    "argumentDefinitions": [],
-    "selections": (v0/*: any*/)
+    "argumentDefinitions": (v0/*: any*/),
+    "selections": (v1/*: any*/)
   },
   "params": {
     "operationKind": "query",
     "name": "FramesQuery",
     "id": null,
-    "text": "query FramesQuery {\n  frames(tbegin: \"2019-11-01T00:00:00\", tend: \"2019-11-15T00:00:00\", nframes: 10) {\n    id\n    url\n    timestamp\n    thumbnail\n  }\n}\n",
+    "text": "query FramesQuery(\n  $tbegin: DateTime!\n  $tend: DateTime!\n) {\n  frames(tbegin: $tbegin, tend: $tend, nframes: 10) {\n    id\n    url\n    timestamp\n    thumbnail\n  }\n}\n",
     "metadata": {}
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '4651a29970575a3be30956bf157c2feb';
+(node/*: any*/).hash = '965dca16cbc5e9339825432fedb41267';
 module.exports = node;
