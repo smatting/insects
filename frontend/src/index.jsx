@@ -53,7 +53,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const views = [
-  { screenName: "Overview", id: "OVERVIEW" },
+  { screenName: "Recordings", id: "OVERVIEW" },
   { screenName: "Clip", id: "CLIP" },
   { screenName: "Live", id: "LIVE" }
 ];

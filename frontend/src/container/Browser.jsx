@@ -15,8 +15,8 @@ const useStyles = makeStyles({
 const Browser = () => {
     const classes = useStyles();
 
-    const [startDate, setStartDate] = React.useState(new Date('2019-11-15T00:00:00'));
-    const [endDate, setEndDate] = React.useState(new Date('2019-11-17T00:00:00'));
+    const [startDate, setStartDate] = React.useState(new Date('2019-10-01T00:00:00'));
+    const [endDate, setEndDate] = React.useState(new Date('2019-12-31T00:00:00'));
 
     return (
         <div className={classes.root}>
@@ -26,7 +26,12 @@ const Browser = () => {
                 endDate={endDate}
                 setEndDate={setEndDate}
                 />
-            <DateRange />
+            <DateRange
+                startDate={startDate}
+                setStartDate={setStartDate}
+                endDate={endDate}
+                setEndDate={setEndDate}
+                />
             <Frames startDate={startDate} endDate={endDate}/>
         </div>
     )
