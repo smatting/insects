@@ -1,40 +1,95 @@
 import React from 'react';
-import { makeStyles } from "@material-ui/core/styles";
+
+import {graphql, QueryRenderer} from 'react-relay';
+import { makeStyles, withStyles } from "@material-ui/core/styles";
+
+import Environment from './GraphQLEnvironment'
+import FrameGrid from './FrameGrid'
+import DateRange from './DateRange'
 
 import BrowserNav from './BrowserNav'
-import Frames from './Frames'
-import DateRange from './DateRange'
 
 
 const useStyles = makeStyles({
     root: {
     }
-}
-);
+});
 
-const Browser = () => {
-    const classes = useStyles();
+class Browser extends React.Component {
 
-    const [startDate, setStartDate] = React.useState(new Date('2019-10-01T00:00:00'));
-    const [endDate, setEndDate] = React.useState(new Date('2019-12-31T00:00:00'));
+    constructor(props) {
+        super();
 
-    return (
-        <div className={classes.root}>
-            <BrowserNav
-                startDate={startDate}
-                setStartDate={setStartDate}
-                endDate={endDate}
-                setEndDate={setEndDate}
-                />
-            <DateRange
-                startDate={startDate}
-                setStartDate={setStartDate}
-                endDate={endDate}
-                setEndDate={setEndDate}
-                />
-            <Frames startDate={startDate} endDate={endDate}/>
-        </div>
-    )
+        // const classes = useStyles();
+
+        this.state = {
+            startDate: new Date('2019-10-01T00:00:00'),
+            endDate: new Date('2019-12-31T00:00:00')
+        };
+
+        // const [startDate, setStartDate] = React.useState(new Date('2019-10-01T00:00:00'));
+        // const [endDate, setEndDate] = React.useState(new Date('2019-12-31T00:00:00'));
+    }
+
+    setStartDate(ms) {
+        // console.log('setStartDate', ms);
+        this.setState({startDate: new Date()});
+    }
+
+    setEndDate(ms) {
+        // this.setState({endDate: new Date(ms)});
+    }
+
+    query_render({error, props}) {
+
+           if (error) {
+             return <div>Error!</div>;
+           }
+           if (!props) {
+             return <div>Loading...</div>;
+           }
+           console.log('Frames props', props)
+           console.log('Frames state', this.state)
+
+           return (
+           <div>
+
+               <DateRange
+                   startDate={this.state.startDate}
+                   setStartDate={this.setStartDate.bind(this)}
+                   endDate={this.state.endDate}
+                   setEndDate={this.setEndDate.bind(this)}
+                   />
+
+               <FrameGrid frames={props.frames} />
+
+           </div>
+
+           );
+    }
+
+    render() {
+      const {startDate, endDate} = this.state;
+      return (
+        <QueryRenderer
+          environment={Environment}
+          query={graphql`
+          query BrowserQuery($tbegin: DateTime!, $tend: DateTime!) {
+              frames(tbegin: $tbegin,
+                     tend: $tend,
+                     nframes: 10) {
+                  id
+                  url
+                  timestamp
+                  thumbnail
+              }
+            }
+          `}
+          render={this.query_render.bind(this)}
+          variables={{tbegin: startDate, tend: endDate}}
+        />
+      );
+    }
 }
 
 export default Browser;
