@@ -31,13 +31,12 @@ class Browser extends React.Component {
         // const [endDate, setEndDate] = React.useState(new Date('2019-12-31T00:00:00'));
     }
 
-    setStartDate(ms) {
-        // console.log('setStartDate', ms);
-        this.setState({startDate: new Date()});
+    setStartDate(startDate) {
+        this.setState({startDate});
     }
 
-    setEndDate(ms) {
-        // this.setState({endDate: new Date(ms)});
+    setEndDate(endDate) {
+        this.setState({endDate});
     }
 
     query_render({error, props}) {

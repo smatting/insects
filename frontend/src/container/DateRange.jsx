@@ -142,60 +142,59 @@ class DateRange extends React.Component {
   constructor(props) {
     super();
 
-
-    const begin = props.startDate;
-    const end = props.endDate;
-
     this.state = {
-      min: begin,
-      max: end,
-      selectedBegin: begin,
-      selectedEnd: end,
+      min: new Date('2019-01-01T00:00:00'),
+      max: new Date('2020-01-31T00:00:00'),
       stack: []
     };
   };
 
   onChange([ms1, ms2]) {
+      this.props.setStartDate(new Date(ms1));
+      this.props.setEndDate(new Date(ms2));
 
-    const selectedBegin = new Date(ms1);
-    const selectedEnd = new Date(ms2);
+    // const selectedBegin = new Date(ms1);
+    // const selectedEnd = new Date(ms2);
 
-    this.props.setStartDate(selectedBegin);
-    this.props.setEndDate(selectedEnd);
+    // this.props.setStartDate(selectedBegin);
+    // this.props.setEndDate(selectedEnd);
 
-    this.setState({ selectedBegin, selectedEnd });
+    // this.setState({ selectedBegin, selectedEnd });
   };
 
   zoomIn() {
-      const { selectedBegin, selectedEnd, min, max, stack } = this.state;
-      if ((min == selectedBegin) && (max == selectedEnd)) {
+      // const { selectedBegin, selectedEnd, min, max, stack } = this.state;
+      const { startDate, endDate } = this.props;
+      const { min, max, stack } = this.state;
+      if ((min == startDate) && (max == endDate)) {
           return
       }
       stack.push([min, max]);
       this.setState({
-          min: selectedBegin,
-          max: selectedEnd,
+          min: startDate,
+          max: endDate,
           stack: stack
       });
   }
 
   zoomOut() {
-      const { selectedBegin, selectedEnd, min, max, stack } = this.state;
-      if (_.size(stack) == 0) {
-          return;
-      }
+      // const { selectedBegin, selectedEnd, min, max, stack } = this.state;
+      // if (_.size(stack) == 0) {
+      //     return;
+      // }
 
-      const old = stack.pop()
+      // const old = stack.pop()
 
-      this.setState({
-          min: old[0],
-          max: old[1],
-          stack: stack
-      });
+      // this.setState({
+      //     min: old[0],
+      //     max: old[1],
+      //     stack: stack
+      // });
   }
 
   render() {
-      const { min, max, selectedBegin, selectedEnd } = this.state;
+      const { min, max } = this.state;
+      const { startDate, endDate } = this.props;
 
       const dateTicks = scaleTime()
           .domain([min, max])
@@ -235,7 +234,7 @@ class DateRange extends React.Component {
                 domain={[+min, +max]}
                 // step={1000*60*60*24}
                 step={1000}
-                values={[+selectedBegin, +selectedEnd]}
+                values={[+startDate, +endDate]}
                 onChange={(ms) => this.onChange(ms)}
                 mode={2}
             >
