@@ -15,9 +15,7 @@ const styles = theme => ({
   }
 });
 
-const getNodes = ({ edges }) => _.map(edges, ({ node }) => node);
-
-class Frames extends React.Component {
+class Dataset extends React.Component {
   query_render({ error, props }) {
     if (error) {
       return <div>Error!</div>;
@@ -26,12 +24,13 @@ class Frames extends React.Component {
       return <div>Loading...</div>;
     }
     console.log("Frames props", props);
-    return <FrameGrid frames={props.frames} showSelect={false} />;
+    return <FrameGrid frames={props.frames} showSelect={true} />;
   }
 
   render() {
     const classes = this.props.classes;
     return (
+      // just a dummy query to have some data
       <QueryRenderer
         environment={Environment}
         query={graphql`
@@ -44,11 +43,14 @@ class Frames extends React.Component {
             }
           }
         `}
-        variables={{ tbegin: this.props.startDate, tend: this.props.endDate }}
+        variables={{
+          tbegin: "2019-10-01T00:00:00",
+          tend: "2019-12-31T00:00:00"
+        }}
         render={this.query_render.bind(this)}
       />
     );
   }
 }
 
-export default withStyles(styles)(Frames);
+export default withStyles(styles)(Dataset);

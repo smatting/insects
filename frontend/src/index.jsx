@@ -23,8 +23,9 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 
 import Browser from "./container/Browser";
-// import Clip from "./container/Clip";
+import Frame from "./container/Frame";
 import LiveView from "./container/LiveView";
+import Dataset from "./container/Dataset";
 
 const drawerWidth = 240;
 
@@ -53,9 +54,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const views = [
-  { screenName: "Recordings", id: "OVERVIEW" },
-  { screenName: "Clip", id: "CLIP" },
-  { screenName: "Live", id: "LIVE" }
+  { screenName: "Live", id: "LIVE" },
+  { screenName: "Browser", id: "BROWSER" },
+  { screenName: "Single Dataset", id: "DATASET" },
+  { screenName: "Single Frame", id: "FRAME" }
 ];
 
 const Index = ({ view, updateView }) => {
@@ -89,8 +91,9 @@ const Index = ({ view, updateView }) => {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />
-        {view == "OVERVIEW" ? <Browser /> : null}
-        {/* {view == "CLIP" ? <Clip /> : null} */}
+        {view == "BROWSER" ? <Browser /> : null}
+        {view == "FRAME" ? <Frame /> : null}
+        {view == "DATASET" ? <Dataset /> : null}
         {view == "LIVE" ? <LiveView /> : null}
       </main>
     </div>
@@ -107,7 +110,6 @@ const epicMiddleware = createEpicMiddleware();
 
 const middlewares = [epicMiddleware, logger];
 // const middlewares = [epicMiddleware, socketIoMiddleware, logger];
-
 
 const enhancer = compose(applyMiddleware(...middlewares));
 

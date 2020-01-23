@@ -1,75 +1,129 @@
-import React from 'react';
-import 'date-fns';
-import Grid from '@material-ui/core/Grid';
-import DateFnsUtils from '@date-io/date-fns';
+import React from "react";
+import "date-fns";
+import { makeStyles } from "@material-ui/core/styles";
+
+import Grid from "@material-ui/core/Grid";
+import DateFnsUtils from "@date-io/date-fns";
+import TextField from "@material-ui/core/TextField";
+import Fab from "@material-ui/core/Fab";
+import AddIcon from "@material-ui/icons/Add";
 import {
   MuiPickersUtilsProvider,
   KeyboardTimePicker,
-  KeyboardDatePicker,
-} from '@material-ui/pickers';
+  KeyboardDatePicker
+} from "@material-ui/pickers";
+import DateRange from "./DateRange";
 
-const BrowserNav = ({startDate, setStartDate, endDate, setEndDate}) => {
-  // The first commit of Material-UI
-  // const [startDate, setStartDate] = React.useState(new Date('2014-08-18T21:11:54'));
-  // const [endDate, setEndDate] = React.useState(new Date('2014-08-18T21:11:54'));
+const useStyles = makeStyles({
+  datePicker: { width: 150, marginRight: 20 },
+  timePicker: { width: 100 },
+  collectionName: {
+    width: 150,
+    marginLeft: 10,
+    marginRight: 10
+  },
+  sampleSize: { width: 100, marginLeft: 10, marginRight: 10 }
+});
 
-
-//   const handleDateChange = date => {
-//     setSelectedDate(date);
-//   };
-
+const AddCollection = ({ onCollectionAdd, classes }) => {
+  const [collectionName, setCollectionName] = React.useState();
+  const [sampleSize, setSampleSize] = React.useState();
   return (
+    <>
+      <form noValidate autoComplete="off">
+        <TextField
+          className={classes.collectionName}
+          id="standard-basic"
+          label="Collection Name"
+          value={collectionName}
+          onChange={event => setCollectionName(event.target.value)}
+        />
+        <TextField
+          className={classes.sampleSize}
+          id="standard-basic"
+          label="Sample Size"
+          value={sampleSize}
+          onChange={event => setSampleSize(event.target.value)}
+        />
+      </form>
+      <Fab color="primary" aria-label="add">
+        <AddIcon
+          onClick={() => onCollectionAdd({ collectionName, sampleSize })}
+        />
+      </Fab>
+    </>
+  );
+};
+
+const DateTimePicker = ({ date, setDate, label, classes }) => (
+  <>
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
-      <Grid container justify="space-around">
-        <KeyboardDatePicker
-          disableToolbar
-          variant="inline"
-          format="MM/dd/yyyy"
-          margin="normal"
-          label="Start Date"
-          value={startDate}
-          onChange={setStartDate}
-          KeyboardButtonProps={{
-            'aria-label': 'change date',
-          }}
-        />
-        <KeyboardTimePicker
-          disableToolbar
-          variant="inline"
-          margin="normal"
-          label="Start Time"
-          value={startDate}
-          onChange={setStartDate}
-          KeyboardButtonProps={{
-            'aria-label': 'change time',
-          }}
-        />
-        <KeyboardDatePicker
-          disableToolbar
-          variant="inline"
-          format="MM/dd/yyyy"
-          margin="normal"
-          label="End Date"
-          value={endDate}
-          onChange={setEndDate}
-          KeyboardButtonProps={{
-            'aria-label': 'change date',
-          }}
-        />
-        <KeyboardTimePicker
-          disableToolbar
-          variant="inline"
-          margin="normal"
-          label="End Time"
-          value={endDate}
-          onChange={setEndDate}
-          KeyboardButtonProps={{
-            'aria-label': 'change time',
-          }}
+      <KeyboardDatePicker
+        className={classes.datePicker}
+        disableToolbar
+        variant="inline"
+        format="MM/dd/yyyy"
+        margin="normal"
+        label={`${label} Date`}
+        value={date}
+        onChange={setDate}
+        KeyboardButtonProps={{
+          "aria-label": "change date"
+        }}
+      />
+      <KeyboardTimePicker
+        className={classes.timePicker}
+        disableToolbar
+        variant="inline"
+        margin="normal"
+        label={`${label} Time`}
+        value={date}
+        onChange={setDate}
+        KeyboardButtonProps={{
+          "aria-label": "change time"
+        }}
+      />
+    </MuiPickersUtilsProvider>
+  </>
+);
+
+const BrowserNav = ({ startDate, setStartDate, endDate, setEndDate }) => {
+  const classes = useStyles();
+  return (
+    <Grid container justify="space-around" alignItems="flex-end" spacing={5}>
+      <Grid container item xs={4} spacing={3}>
+        <DateTimePicker
+          date={startDate}
+          setDate={setStartDate}
+          label="Start"
+          classes={classes}
         />
       </Grid>
-    </MuiPickersUtilsProvider>
+      <Grid container item xs={4} spacing={3}>
+        <DateTimePicker
+          date={endDate}
+          setDate={setEndDate}
+          label="End"
+          classes={classes}
+        />
+      </Grid>
+      <Grid container item xs={4} spacing={3}>
+        <AddCollection
+          startDate={startDate}
+          endDate={endDate}
+          classes={classes}
+        />
+      </Grid>
+      <Grid container item xs={12} spacing={3}>
+        <DateRange
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+        />
+      </Grid>
+    </Grid>
   );
-}
+};
 
 export default BrowserNav;
