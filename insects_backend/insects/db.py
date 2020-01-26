@@ -1,9 +1,9 @@
 import datetime
 import re
 from .data import initialize
-from . import models
-
 from django.db import connection
+
+# from . import models
 
 THUMB_HEIGHT = 200
 THUMB_WIDTH = int(1.3 * THUMB_HEIGHT)
@@ -49,8 +49,10 @@ def get_thumbnail(url):
 
 
 def make_frame(id_, timestamp, url):
+    # thumbnail = get_thumbnail(url)
+    # frame = models.Frame(id=id_, url=url, timestamp=timestamp, thumbnail=thumbnail)
     thumbnail = get_thumbnail(url)
-    frame = models.Frame(id=id_, url=url, timestamp=timestamp, thumbnail=thumbnail)
+    frame = {'id': id_, 'timestamp': timestamp, 'url': url, 'thumbnail': thumbnail}
     return frame
 
 
