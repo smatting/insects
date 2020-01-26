@@ -6,7 +6,7 @@ import base64
 
 from graphene import relay
 from graphene import (ObjectType, String, Field, List,
-                      Argument, Int, DateTime, ID)
+                      Argument, Int, Float, DateTime, ID, Mutation)
 
 # from graphene_django import DjangoObjectType, DjangoConnectionField
 # from graphene_django.filter import DjangoFilterConnectionField
@@ -42,6 +42,7 @@ class SearchResult(ObjectType):
     ntotal = Int()
 
 
+# root query
 class Query(ObjectType):
     # frame = relay.Node.Field(Frame)
     # all_frames = DjangoFilterConnectionField(Frame)
@@ -68,6 +69,24 @@ class Query(ObjectType):
         return {'ntotal': ntotal, 'frames': frames}
 
 
+class CreateCollection(Mutation):
+    class Arguments:
+        tbegin = Argument(DateTime, required=True)
+        tend = Argument(DateTime, required=True)
+        subsample = Argument(Float, required=False)
+
+    id = Field(ID)
+
+    @staticmethod
+    def mutate(root, info, tbegin, tend, subsample=None):
+        return {"id": "hu"}
+
+
+# root mutation
+class Mutations(ObjectType):
+    create_collection = CreateCollection.Field()
+
+
 # Stefan: Example of manual resolve to a List
 # class Query(ObjectType):
 #     frame = relay.Node.Field(Frame)
@@ -77,9 +96,6 @@ class Query(ObjectType):
 #         return frames
 #     collection = relay.Node.Field(Collection)
 
-
-# class Mutation(ObjectType):
-#     pass
 
 # We register the Character Model because if not would be
 # # inaccessible for the schema
