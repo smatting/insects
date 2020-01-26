@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 128b6a85cd9d5bca95f895afeae4e6f4
+ * @relayHash e0da96e7793a277cb79c6137576996d3
  */
 
 /* eslint-disable */
@@ -14,12 +14,15 @@ export type BrowserQueryVariables = {|
   tend: any,
 |};
 export type BrowserQueryResponse = {|
-  +frames: ?$ReadOnlyArray<?{|
-    +id: string,
-    +url: string,
-    +timestamp: any,
-    +thumbnail: string,
-  |}>
+  +frames: ?{|
+    +ntotal: ?number,
+    +frames: ?$ReadOnlyArray<?{|
+      +id: string,
+      +url: ?string,
+      +timestamp: ?any,
+      +thumbnail: ?string,
+    |}>,
+  |}
 |};
 export type BrowserQuery = {|
   variables: BrowserQueryVariables,
@@ -34,10 +37,13 @@ query BrowserQuery(
   $tend: DateTime!
 ) {
   frames(tbegin: $tbegin, tend: $tend, nframes: 10) {
-    id
-    url
-    timestamp
-    thumbnail
+    ntotal
+    frames {
+      id
+      url
+      timestamp
+      thumbnail
+    }
   }
 }
 */
@@ -80,36 +86,54 @@ v1 = [
         "variableName": "tend"
       }
     ],
-    "concreteType": "Frame",
-    "plural": true,
+    "concreteType": "SearchResult",
+    "plural": false,
     "selections": [
       {
         "kind": "ScalarField",
         "alias": null,
-        "name": "id",
+        "name": "ntotal",
         "args": null,
         "storageKey": null
       },
       {
-        "kind": "ScalarField",
+        "kind": "LinkedField",
         "alias": null,
-        "name": "url",
+        "name": "frames",
+        "storageKey": null,
         "args": null,
-        "storageKey": null
-      },
-      {
-        "kind": "ScalarField",
-        "alias": null,
-        "name": "timestamp",
-        "args": null,
-        "storageKey": null
-      },
-      {
-        "kind": "ScalarField",
-        "alias": null,
-        "name": "thumbnail",
-        "args": null,
-        "storageKey": null
+        "concreteType": "Frame",
+        "plural": true,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "url",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "timestamp",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "thumbnail",
+            "args": null,
+            "storageKey": null
+          }
+        ]
       }
     ]
   }
@@ -134,11 +158,11 @@ return {
     "operationKind": "query",
     "name": "BrowserQuery",
     "id": null,
-    "text": "query BrowserQuery(\n  $tbegin: DateTime!\n  $tend: DateTime!\n) {\n  frames(tbegin: $tbegin, tend: $tend, nframes: 10) {\n    id\n    url\n    timestamp\n    thumbnail\n  }\n}\n",
+    "text": "query BrowserQuery(\n  $tbegin: DateTime!\n  $tend: DateTime!\n) {\n  frames(tbegin: $tbegin, tend: $tend, nframes: 10) {\n    ntotal\n    frames {\n      id\n      url\n      timestamp\n      thumbnail\n    }\n  }\n}\n",
     "metadata": {}
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = 'ab9d2bb2316b21f25f75d1802db99bad';
+(node/*: any*/).hash = '24762423fb6d6e12f06a5bd0317cf8ce';
 module.exports = node;

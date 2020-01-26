@@ -37,13 +37,25 @@ def parse_frame_id(s):
         return int(digits)
 
 
+class SearchResult(ObjectType):
+    frames = List(Frame)
+    ntotal = Int()
+
+
 class Query(ObjectType):
     # frame = relay.Node.Field(Frame)
     # all_frames = DjangoFilterConnectionField(Frame)
 
     # collection = relay.Node.Field(Collection)
 
-    frames = Field(List(Frame),
+    # frames = Field(List(Frame),
+    #                tbegin=Argument(DateTime, required=True),
+    #                tend=Argument(DateTime, required=True),
+    #                nframes=Argument(Int, required=True),
+    #                after=Argument(ID, required=False)
+    #                )
+
+    frames = Field(SearchResult,
                    tbegin=Argument(DateTime, required=True),
                    tend=Argument(DateTime, required=True),
                    nframes=Argument(Int, required=True),
@@ -52,9 +64,8 @@ class Query(ObjectType):
 
     def resolve_frames(self, info, tbegin, tend, nframes, after=None):
         frame_id = parse_frame_id(after)
-        frames = db.get_frames(tbegin=tbegin, tend=tend, nframes=nframes, after=frame_id)
-        # import ipdb; ipdb.set_trace()
-        return frames
+        ntotal, frames = db.get_frames(tbegin=tbegin, tend=tend, nframes=nframes, after=frame_id)
+        return {'ntotal': ntotal, 'frames': frames}
 
 
 # Stefan: Example of manual resolve to a List

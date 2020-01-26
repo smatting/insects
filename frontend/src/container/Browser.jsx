@@ -22,7 +22,7 @@ const renderFrames = (error, props) => {
     if (!props) {
       return <div>Loading...</div>;
     }
-    return (<FrameGrid frames={props.frames} />);
+    return (<FrameGrid frames={props.frames.frames} />);
 }
 
 
@@ -65,6 +65,7 @@ class Browser extends React.Component {
                    setEndDate={this.setEndDate.bind(this)}
                    />
 
+                { props && props.frames.ntotal ? <div>Total: {props.frames.ntotal}</div> : <div>nix</div>}
                 {renderFrames(error, props)}
 
            </div>
@@ -82,10 +83,13 @@ class Browser extends React.Component {
               frames(tbegin: $tbegin,
                      tend: $tend,
                      nframes: 10) {
-                  id
-                  url
-                  timestamp
-                  thumbnail
+                  ntotal
+                  frames {
+                      id
+                      url
+                      timestamp
+                      thumbnail
+                  }
               }
             }
           `}

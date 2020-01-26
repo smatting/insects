@@ -93,7 +93,7 @@ def get_frames_continuous(tbegin, tend, after, nframes=10):
     for (id_, timestamp, url) in cursor.fetchall():
         frame = make_frame(id_, timestamp, url)
         frames.append(frame)
-    return frames
+    return len(frames), frames
 
 
 def get_frames_subsample(tbegin, tend, nframes=10):
@@ -140,7 +140,7 @@ def get_frames_subsample(tbegin, tend, nframes=10):
         frame = make_frame(id_, timestamp, url)
         frames.append(frame)
 
-    return frames
+    return n, frames
 
 
 def get_frames(tbegin, tend, nframes, after=None):
