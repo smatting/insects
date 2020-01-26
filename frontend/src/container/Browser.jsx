@@ -15,6 +15,17 @@ const useStyles = makeStyles({
     }
 });
 
+const renderFrames = (error, props) => {
+    if (error) {
+      return <div>Error!</div>;
+    }
+    if (!props) {
+      return <div>Loading...</div>;
+    }
+    return (<FrameGrid frames={props.frames} />);
+}
+
+
 class Browser extends React.Component {
 
     constructor(props) {
@@ -40,15 +51,9 @@ class Browser extends React.Component {
     }
 
     query_render({error, props}) {
-
-           if (error) {
-             return <div>Error!</div>;
-           }
-           if (!props) {
-             return <div>Loading...</div>;
-           }
            console.log('Frames props', props)
            console.log('Frames state', this.state)
+
 
            return (
            <div>
@@ -60,7 +65,7 @@ class Browser extends React.Component {
                    setEndDate={this.setEndDate.bind(this)}
                    />
 
-               <FrameGrid frames={props.frames} />
+                {renderFrames(error, props)}
 
            </div>
 
