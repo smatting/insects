@@ -15,12 +15,20 @@ import IconButton from "@material-ui/core/IconButton";
 
 import LabelIcon from "@material-ui/icons/Label";
 import DeleteIcon from "@material-ui/icons/Delete";
+import NavigateNextIcon from "@material-ui/icons/NavigateNext";
+import NavigateBeforeIcon from "@material-ui/icons/NavigateBefore";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
+
+import Card from "@material-ui/core/Card";
+import CardHeader from "@material-ui/core/CardHeader";
+import CardMedia from "@material-ui/core/CardMedia";
+import CardContent from "@material-ui/core/CardContent";
+import CardActions from "@material-ui/core/CardActions";
 
 const useStyles = makeStyles({
   img: { height: "100%" },
@@ -93,7 +101,7 @@ const LabelList = ({ annotations, classes, onDelete, onActive }) => {
               key={"label-" + idx}
               selected={annotation.active}
               onMouseEnter={() => onActive(idx)}
-              onMouseOut={() => onActive(null)}
+              onMouseLeave={() => onActive(null)}
             >
               <TableCell padding="checkbox">
                 <LabelIcon />
@@ -117,6 +125,7 @@ const LabelList = ({ annotations, classes, onDelete, onActive }) => {
 const dummyData = {
   url:
     "http://storage.googleapis.com/eco1/frames/cam1/2019-11-15/19/01-20191115192717-02.jpg",
+  timestamp: "123123",
   species: [
     { name: "Heimchen", id: "sdasd" },
     { name: "Wander-Heuschrecken", id: "asfaa" },
@@ -124,7 +133,11 @@ const dummyData = {
   ]
 };
 
-const Frame = ({ url = dummyData.url, species = dummyData.species }) => {
+const Frame = ({
+  url = dummyData.url,
+  species = dummyData.species,
+  timestamp = dummyData.timestamp
+}) => {
   const classes = useStyles();
   const [annotations, setAnnotations] = React.useState([]);
   const [annotation, setAnnotation] = React.useState({});
@@ -177,17 +190,35 @@ const Frame = ({ url = dummyData.url, species = dummyData.species }) => {
   return (
     <Grid container justify="space-between" spacing={1} alignItems="flex-start">
       <Grid container item xs={9} spacing={1}>
-        <Annotation
-          className={classes.img}
-          src={url}
-          renderHighlight={renderHighlight}
-          annotations={annotations}
-          value={annotation}
-          onChange={onChange}
-          onMouseUp={onSubmit}
-          disableOverlay={true}
-          disableEditor={true}
-        />
+        <Card className={classes.card}>
+          <CardHeader
+            title={timestamp}
+            action={
+              <>
+                <IconButton aria-label="before">
+                  <NavigateBeforeIcon />
+                </IconButton>
+                <IconButton aria-label="next">
+                  <NavigateNextIcon />
+                </IconButton>
+              </>
+            }
+            // subheader="September 14, 2016"
+          />
+          <CardContent>
+            <Annotation
+              className={classes.img}
+              src={url}
+              renderHighlight={renderHighlight}
+              annotations={annotations}
+              value={annotation}
+              onChange={onChange}
+              onMouseUp={onSubmit}
+              disableOverlay={true}
+              disableEditor={true}
+            />
+          </CardContent>
+        </Card>
       </Grid>
       <Grid container item xs={3} spacing={1}>
         <Grid container item xs={12} spacing={1}>
