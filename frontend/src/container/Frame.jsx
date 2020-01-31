@@ -11,25 +11,45 @@ import FormControl from "@material-ui/core/FormControl";
 import FormLabel from "@material-ui/core/FormLabel";
 import Grid from "@material-ui/core/Grid";
 
+import IconButton from "@material-ui/core/IconButton";
+
+import LabelIcon from "@material-ui/icons/Label";
+import DeleteIcon from "@material-ui/icons/Delete";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
+
 const useStyles = makeStyles({
   img: { height: "100%" },
-  speciesControl: {}
+  speciesControl: {},
+  labelListTable: {}
 });
 
-const renderHighlight = ({ key, annotation, active }) => (
-  <>
-    <div
-      style={{
-        position: "absolute",
-        left: `${annotation.geometry.x}%`,
-        top: `${annotation.geometry.y}%`
-      }}
-    >
-      {annotation.data.species.name}
-    </div>
-    <Rectangle key={key} annotation={annotation} active={active} />
-  </>
-);
+const renderHighlight = ({ key, annotation, active }) => {
+  console.log("hello");
+  return (
+    <React.Fragment key={"rectangle-fragment-" + key}>
+      <div
+        key={"rectangle-label-" + key}
+        style={{
+          position: "absolute",
+          left: `${annotation.geometry.x}%`,
+          top: `${annotation.geometry.y}%`
+        }}
+      >
+        {annotation.data.species.name}
+      </div>
+      <Rectangle
+        key={"rectangle-" + key}
+        annotation={annotation}
+        active={annotation.active}
+      />
+    </React.Fragment>
+  );
+};
 
 const SpeciesSelector = ({
   classes,
@@ -59,6 +79,41 @@ const SpeciesSelector = ({
   );
 };
 
+const LabelList = ({ annotations, classes, onDelete, onActive }) => {
+  return (
+    <TableContainer component={Paper}>
+      <Table
+        className={classes.labelListTable}
+        size="small"
+        aria-label="a dense table"
+      >
+        <TableBody>
+          {annotations.map((annotation, idx) => (
+            <TableRow
+              key={"label-" + idx}
+              selected={annotation.active}
+              onMouseEnter={() => onActive(idx)}
+              onMouseOut={() => onActive(null)}
+            >
+              <TableCell padding="checkbox">
+                <LabelIcon />
+              </TableCell>
+              <TableCell align="right">
+                {annotation.data.species.name}
+              </TableCell>
+              <TableCell padding="checkbox">
+                <IconButton aria-label="delete" onClick={() => onDelete(idx)}>
+                  <DeleteIcon />
+                </IconButton>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
+
 const dummyData = {
   url:
     "http://storage.googleapis.com/eco1/frames/cam1/2019-11-15/19/01-20191115192717-02.jpg",
@@ -74,21 +129,44 @@ const Frame = ({ url = dummyData.url, species = dummyData.species }) => {
   const [annotations, setAnnotations] = React.useState([]);
   const [annotation, setAnnotation] = React.useState({});
   const [activeSpecies, setActiveSpecies] = React.useState(species[0]["id"]);
+  //   const [activeAnnotation, setActiveAnnotation] = React.useState();
   const species_by_key = _.keyBy(species, "id");
 
-  const onSubmit = () => {
-    const { geometry, data } = annotation;
-    console.log(annotation);
-    setAnnotation({});
+  const onDelete = idx => {
+    annotations.splice(idx, 1);
+    setAnnotations([...annotations]);
+  };
+
+  const onActive = activeIdx => {
     setAnnotations(
-      annotations.concat({
-        geometry,
-        data: {
-          species: species_by_key[activeSpecies],
-          id: Math.random()
-        }
-      })
+      annotations.map((a, idx) => ({ ...a, active: idx == activeIdx }))
     );
+  };
+
+  const onChange = a => {
+    if (a != annotation) {
+      setAnnotation(a);
+    }
+  };
+
+  const onSubmit = (test, test2) => {
+    const { geometry } = annotation;
+    console.log("annotation", annotation, test, test2);
+    if (geometry) {
+      setAnnotation({});
+      setAnnotations(
+        annotations.concat(
+          {
+            geometry,
+            data: {
+              species: species_by_key[activeSpecies],
+              id: Math.random()
+            }
+          }
+          //   () => setActiveAnnotation(annotations.length)
+        )
+      );
+    }
   };
 
   const onSpeciesChange = (e, id) => {
@@ -102,23 +180,32 @@ const Frame = ({ url = dummyData.url, species = dummyData.species }) => {
         <Annotation
           className={classes.img}
           src={url}
-          alt="Test"
           renderHighlight={renderHighlight}
           annotations={annotations}
           value={annotation}
-          onChange={setAnnotation}
+          onChange={onChange}
           onMouseUp={onSubmit}
           disableOverlay={true}
           disableEditor={true}
         />
       </Grid>
       <Grid container item xs={3} spacing={1}>
-        <SpeciesSelector
-          classes={classes}
-          species={species}
-          activeSpecies={activeSpecies}
-          onSpeciesChange={onSpeciesChange}
-        />
+        <Grid container item xs={12} spacing={1}>
+          <SpeciesSelector
+            classes={classes}
+            species={species}
+            activeSpecies={activeSpecies}
+            onSpeciesChange={onSpeciesChange}
+          />
+        </Grid>
+        <Grid container item xs={12} spacing={1}>
+          <LabelList
+            classes={classes}
+            annotations={annotations}
+            onDelete={onDelete}
+            onActive={onActive}
+          />
+        </Grid>
       </Grid>
     </Grid>
   );

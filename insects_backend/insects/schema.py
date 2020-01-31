@@ -67,11 +67,10 @@ class Frame(DjangoObjectType):
 #     class Meta:
 #         model = models.Clip
 #         interfaces = (relay.Node, )
-
 #     preview_frame = Field(Frame)
-
 #     def resolve_preview_frame(self, info):
 #         return self.frames.first()
+
 
 def parse_frame_id(s):
     if s is None:
