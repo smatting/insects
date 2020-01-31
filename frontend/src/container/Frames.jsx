@@ -31,6 +31,7 @@ class Frames extends React.Component {
 
   render() {
     const classes = this.props.classes;
+      /*
     return (
       <QueryRenderer
         environment={Environment}
@@ -48,6 +49,7 @@ class Frames extends React.Component {
         render={this.query_render.bind(this)}
       />
     );
+    */
   }
 }
 

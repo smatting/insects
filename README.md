@@ -122,7 +122,7 @@ python ./manage.py runserver
 
 ## Export Schema
 
-./manage.py graphql_schema --out frontend/schema.json --watch
+./manage.py graphql_schema --out frontend/schema.json
 
 ## Example Query
 

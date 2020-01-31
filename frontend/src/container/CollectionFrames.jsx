@@ -30,11 +30,12 @@ class Frames extends React.Component {
 
   render() {
     const { classes, collectionId } = this.props;
+      /*
     return (
       <QueryRenderer
         environment={Environment}
         query={graphql`
-          query FramesQuery($collectionId: String!) {
+          query CollectionFramesQuery($collectionId: String!) {
             frames(collectionId: $tbegin, tend: $tend, nframes: 10) {
               id
               url
@@ -47,6 +48,7 @@ class Frames extends React.Component {
         render={this.query_render.bind(this)}
       />
     );
+    */
   }
 }
 

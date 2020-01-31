@@ -8,13 +8,11 @@ from django.db import models
 class Frame(models.Model):
     timestamp = models.DateTimeField()
     url = models.TextField()
-    thumbnail = models.TextField()
 
 
 class Collection(models.Model):
     name = models.TextField()
     date_created = models.DateTimeField()
-
     frames = models.ManyToManyField(Frame, related_name='collections')
 
 

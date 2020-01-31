@@ -29,12 +29,13 @@ class Dataset extends React.Component {
 
   render() {
     const classes = this.props.classes;
+      /*
     return (
       // just a dummy query to have some data
       <QueryRenderer
         environment={Environment}
         query={graphql`
-          query FramesQuery($tbegin: DateTime!, $tend: DateTime!) {
+          query DatasetQuery($tbegin: DateTime!, $tend: DateTime!) {
             frames(tbegin: $tbegin, tend: $tend, nframes: 10) {
               id
               url
@@ -50,6 +51,7 @@ class Dataset extends React.Component {
         render={this.query_render.bind(this)}
       />
     );
+    */
   }
 }
 
