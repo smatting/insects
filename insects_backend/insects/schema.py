@@ -6,7 +6,7 @@ import base64
 
 from graphene import relay
 from graphene import (ObjectType, String, Field, List,
-                      Argument, Int, Float, DateTime, ID, Mutation)
+                      Argument, Int, Float, DateTime, ID, Mutation, Boolean)
 
 # from graphene_django import DjangoObjectType, DjangoConnectionField
 # from graphene_django.filter import DjangoFilterConnectionField
@@ -77,21 +77,35 @@ class Query(ObjectType):
 
 class CreateCollection(Mutation):
     class Arguments:
+        name = Argument(String, required=True)
+
+    id = Field(ID)
+    name = Field(String)
+
+    @staticmethod
+    def mutate(root, info, name):
+        coll = db.collection_create(name)
+        return {'id': coll.id, 'name': coll.name}
+
+
+class AddToCollection(Mutation):
+    class Arguments:
+        collectionId = Argument(ID, required=True)
         tbegin = Argument(DateTime, required=True)
         tend = Argument(DateTime, required=True)
         nsamples = Argument(Int, required=False)
 
-    id = Field(ID)
+    status = Field(Boolean)
 
     @staticmethod
-    def mutate(root, info, tbegin, tend, nsamples):
-        return {"id": "hu"}
-
+    def mutate(root, info, collectionId, tbegin, tend, nsamples):
+        db.collection_add_subsample(collectionId, tbegin, tend, nsamples)
+        return {'status': True}
 
 # root mutation
 class Mutations(ObjectType):
     create_collection = CreateCollection.Field()
-
+    add_to_collection = AddToCollection.Field()
 
 # Stefan: Example of manual resolve to a List
 # class Query(ObjectType):
