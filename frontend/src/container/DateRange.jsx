@@ -178,18 +178,21 @@ class DateRange extends React.Component {
   }
 
   zoomOut() {
-      // const { selectedBegin, selectedEnd, min, max, stack } = this.state;
-      // if (_.size(stack) == 0) {
-      //     return;
-      // }
+      // const { startDate, endDate } = this.props;
 
-      // const old = stack.pop()
+      const { min, max, stack } = this.state;
 
-      // this.setState({
-      //     min: old[0],
-      //     max: old[1],
-      //     stack: stack
-      // });
+      if (_.size(stack) == 0) {
+          return;
+      }
+
+      const old = stack.pop()
+
+      this.setState({
+          min: old[0],
+          max: old[1],
+          stack: stack
+      });
   }
 
   render() {

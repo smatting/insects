@@ -65,7 +65,7 @@ class Browser extends React.Component {
                    setEndDate={this.setEndDate.bind(this)}
                    />
 
-                { props && props.frames.ntotal ? <div>Total: {props.frames.ntotal}</div> : <div>nix</div>}
+                { props && props.frames.ntotal ? <div>Total: {props.frames.ntotal}</div> : <div></div>}
                 {renderFrames(error, props)}
 
            </div>
