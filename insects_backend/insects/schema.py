@@ -25,16 +25,22 @@ class Frame(ObjectType):
         raise NotImplementedError('nope')
 
 
-def parse_frame_id(s):
+def parse_node_id(s):
     if s is None:
         return None
     x = base64.b64decode(s).decode('utf8')
-    m = re.match(r'Frame:(\d+)', x)
+    m = re.match(r'([^:]+):(\d+)', x)
     if m is None:
         return None
     else:
-        digits, = m.groups()
-        return int(digits)
+        name, digits = m.groups()
+        return name, int(digits)
+
+
+def generate_node_id(name, id_):
+    s = f'{name}:{id_}'
+    x = base64.b64encode(s.encode('utf8'))
+    return x
 
 
 class SearchResult(ObjectType):
@@ -64,7 +70,7 @@ class Query(ObjectType):
                    )
 
     def resolve_frames(self, info, tbegin, tend, nframes, after=None):
-        frame_id = parse_frame_id(after)
+        _, frame_id = parse_node_id(after)
         ntotal, frames = db.get_frames(tbegin=tbegin, tend=tend, nframes=nframes, after=frame_id)
         return {'ntotal': ntotal, 'frames': frames}
 
