@@ -73,12 +73,12 @@ class CreateCollection(Mutation):
     class Arguments:
         tbegin = Argument(DateTime, required=True)
         tend = Argument(DateTime, required=True)
-        subsample = Argument(Float, required=False)
+        nsamples = Argument(Int, required=False)
 
     id = Field(ID)
 
     @staticmethod
-    def mutate(root, info, tbegin, tend, subsample=None):
+    def mutate(root, info, tbegin, tend, nsamples):
         return {"id": "hu"}
 
 

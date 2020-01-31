@@ -163,23 +163,23 @@ def get_frames(tbegin, tend, nframes, after=None):
                                 nframes=nframes)
 
 
-def collection_create():
+def collection_create(name):
     '''
     Create empty connection
     '''
     now = datetime.datetime.now()
-    coll = models.Collection(name="unnamed collection", date_created=now)
+    coll = models.Collection(name, date_created=now)
     coll.save()
     return coll
 
 
-def collection_add_subsample(coll_id, tbegin, tend, subsample=0.1):
+def collection_add_subsample(coll_id, tbegin, tend, nsamples):
     '''
     Add subsample to a collection
     '''
     coll = models.Collection.objects.get(id=coll_id)
-    n, frames = frames_fetch_sub(tbegin, tend, lambda n: equidx(n, math.floor(subsample*n)))
-    ids_ =[f['id'] for f in frames]
+    n, frames = frames_fetch_sub(tbegin, tend, lambda n: equidx(n, nsamples))
+    ids_ = [f['id'] for f in frames]
     coll.frames.add(*ids_)
 
 
