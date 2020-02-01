@@ -5,3 +5,11 @@ export const updateView = view => {
     server: true
   };
 };
+
+export const updateSearch = search => {
+  return {
+    type: "SEARCH_UPDATE",
+    search,
+    server: true
+  };
+};

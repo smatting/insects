@@ -1,8 +1,6 @@
 import React from "react";
-import { graphql, QueryRenderer } from "react-relay";
 import { withStyles } from "@material-ui/core/styles";
 
-import Environment from "./GraphQLEnvironment";
 import FrameGrid from "./FrameGrid";
 
 const styles = theme => ({
@@ -31,7 +29,7 @@ class Frames extends React.Component {
 
   render() {
     const classes = this.props.classes;
-      /*
+    /*
     return (
       <QueryRenderer
         environment={Environment}

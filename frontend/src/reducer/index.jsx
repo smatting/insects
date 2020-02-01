@@ -1,71 +1,6 @@
 import { combineReducers } from "redux";
 import { createReducer } from "redux-starter-kit";
-import { productsInit, basketInit } from "./dummy";
 import _ from "lodash";
-
-const dummyClips = [
-  {
-    id: "1",
-    images: ["1", "2", "4", "5"],
-    session: "Bug",
-    thumbURL: "https://picsum.photos/200/300"
-  },
-  {
-    id: "2",
-    images: ["1", "2", "4", "5"],
-    session: "Bug",
-    thumbURL: "https://picsum.photos/200/300"
-  },
-  {
-    id: "3",
-    images: ["1", "2", "4", "5"],
-    session: "Bug",
-    thumbURL: "https://picsum.photos/200/300"
-  },
-  {
-    id: "4",
-    images: ["1", "2", "4", "5"],
-    session: "Butterfly",
-    thumbURL: "https://picsum.photos/200/300"
-  },
-  {
-    id: "5",
-    images: ["1", "2", "4", "5"],
-    session: "Butterfly",
-    thumbURL: "https://picsum.photos/200/300"
-  }
-];
-const dummyImages = [
-  {
-    id: "1",
-    url: "https://picsum.photos/200/300",
-    thumbURL: "https://picsum.photos/200/300"
-  },
-  {
-    id: "2",
-    img: "https://picsum.photos/200/300",
-    thumbURL: "https://picsum.photos/200/300"
-  },
-  {
-    id: "3",
-    img: "https://picsum.photos/200/300",
-    thumbURL: "https://picsum.photos/200/300"
-  },
-  {
-    id: "4",
-    img: "https://picsum.photos/200/300",
-    thumbURL: "https://picsum.photos/200/300"
-  },
-  {
-    id: "5",
-    img: "https://picsum.photos/200/300",
-    thumbURL: "https://picsum.photos/200/300"
-  }
-];
-const dummyAnnotation = [
-  { id: "1", images: ["1", "2"], labels: ["butterfly"] }
-];
-const dummySelection = { clipId: "1", firstImgId: "2", lastImgId: "4" };
 
 const view = createReducer("FRAME", {
   VIEW_UPDATE: (state, action) => action.view
@@ -80,28 +15,26 @@ const key = list => ({
   allIds: _.map(list, ({ id }) => id)
 });
 
-const annotation = createReducer(key(dummyAnnotation), {});
+const defaultSearch = {
+  startDate: new Date("2019-10-01T00:00:00"),
+  endDate: new Date("2019-12-31T00:00:00")
+};
 
-const images = createReducer(key(dummyImages), {});
-
-const groupIds = (list, groupKey) =>
-  _.mapValues(_.groupBy(list, groupKey), l => _.map(l, ({ id }) => id));
-
-const keyClips = list => ({
-  ...key(list),
-  groupIds: groupIds(list, "session")
+const search = createReducer(defaultSearch, {
+  SEARCH_UPDATE: (state, action) => ({ ...state, ...action.search })
 });
 
-const clips = createReducer(keyClips(dummyClips), {});
-
-const selection = createReducer(dummySelection, {});
+const searchResults = createReducer(
+  { frames: [], ntotal: 0 },
+  {
+    SEARCH_UPDATED: (state, action) => action.searchResults
+  }
+);
 
 const reducers = combineReducers({
   view,
-  annotation,
-  images,
-  clips,
-  selection,
+  search,
+  searchResults,
   liveImage
 });
 

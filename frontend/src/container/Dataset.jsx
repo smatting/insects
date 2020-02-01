@@ -1,8 +1,6 @@
 import React from "react";
-import { graphql, QueryRenderer } from "react-relay";
 import { withStyles } from "@material-ui/core/styles";
 
-import Environment from "./GraphQLEnvironment";
 import FrameGrid from "./FrameGrid";
 
 const styles = theme => ({
@@ -29,7 +27,7 @@ class Dataset extends React.Component {
 
   render() {
     const classes = this.props.classes;
-      /*
+    /*
     return (
       // just a dummy query to have some data
       <QueryRenderer

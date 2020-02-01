@@ -59,8 +59,12 @@ module.exports = {
                     loader: "babel-loader",
                     options: {
                         babelrc: false,
-                        presets: ["@babel/preset-flow", "@babel/preset-env", "@babel/preset-react"],
-                        plugins: ["babel-plugin-relay"]
+                        presets: [
+                                // "@babel/preset-flow",
+                                "@babel/preset-env",
+                                "@babel/preset-react"
+                            ]
+                            // plugins: ["babel-plugin-relay"]
                     }
                 }
             },

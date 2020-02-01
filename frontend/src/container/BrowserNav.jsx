@@ -87,39 +87,39 @@ const DateTimePicker = ({ date, setDate, label, classes }) => (
   </>
 );
 
-const BrowserNav = ({ startDate, setStartDate, endDate, setEndDate }) => {
+const BrowserNav = ({ search, onSearchUpdate, onAddCollection }) => {
   const classes = useStyles();
   return (
     <Grid container justify="space-around" alignItems="flex-end" spacing={5}>
       <Grid container item xs={4} spacing={3}>
         <DateTimePicker
-          date={startDate}
-          setDate={setStartDate}
+          date={search.startDate}
+          setDate={startDate => onSearchUpdate({ startDate })}
           label="Start"
           classes={classes}
         />
       </Grid>
       <Grid container item xs={4} spacing={3}>
         <DateTimePicker
-          date={endDate}
-          setDate={setEndDate}
+          date={search.endDate}
+          setDate={endDate => onSearchUpdate({ endDate })}
           label="End"
           classes={classes}
         />
       </Grid>
       <Grid container item xs={4} spacing={3}>
         <AddCollection
-          startDate={startDate}
-          endDate={endDate}
+          // TODO
+          //   onAdd={() => onAddCollection(search)}
           classes={classes}
         />
       </Grid>
       <Grid container item xs={12} spacing={3}>
         <DateRange
-          startDate={startDate}
-          setStartDate={setStartDate}
-          endDate={endDate}
-          setEndDate={setEndDate}
+          startDate={search.startDate}
+          setStartDate={startDate => onSearchUpdate({ startDate })}
+          endDate={search.endDate}
+          setEndDate={endDate => onSearchUpdate({ endDate })}
         />
       </Grid>
     </Grid>
