@@ -102,14 +102,14 @@ const Index = ({ view, updateView }) => {
 
 const epicMiddleware = createEpicMiddleware();
 
-// let socket = io(process.env.APP_HOST);
-// let socketIoMiddleware = createSocketIoMiddleware(
-//   socket,
-//   (type, action) => action.server
-// );
+let socket = io(process.env.APP_HOST);
+let socketIoMiddleware = createSocketIoMiddleware(
+  socket,
+  (type, action) => action.server
+);
 
-const middlewares = [epicMiddleware, logger];
-// const middlewares = [epicMiddleware, socketIoMiddleware, logger];
+// const middlewares = [epicMiddleware, logger];
+const middlewares = [epicMiddleware, socketIoMiddleware, logger];
 
 const enhancer = compose(applyMiddleware(...middlewares));
 

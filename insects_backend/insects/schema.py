@@ -12,6 +12,7 @@ from graphene import (ObjectType, String, Field, List,
 # from graphene_django.filter import DjangoFilterConnectionField
 
 
+
 class Frame(ObjectType):
     class Meta:
         interfaces = (relay.Node, )
@@ -27,11 +28,11 @@ class Frame(ObjectType):
 
 def parse_node_id(s):
     if s is None:
-        return None
+        return None, None
     x = base64.b64decode(s).decode('utf8')
     m = re.match(r'([^:]+):(\d+)', x)
     if m is None:
-        return None
+        return None, None
     else:
         name, digits = m.groups()
         return name, int(digits)
@@ -43,10 +44,22 @@ def generate_node_id(name, id_):
     return x
 
 
-class SearchResult(ObjectType):
+class Collection(ObjectType):
+    class Meta:
+        interfaces = (relay.Node, )
+
+    name = String()
+    # frames = Connection(Frame)
+
+    @classmethod
+    def get_node(cls, info, id):
+        raise NotImplementedError('nope')
+
+
+class Search(ObjectType):
     frames = List(Frame)
     ntotal = Int()
-
+    # collections = List(Collection)
 
 # root query
 class Query(ObjectType):
@@ -62,18 +75,26 @@ class Query(ObjectType):
     #                after=Argument(ID, required=False)
     #                )
 
-    frames = Field(SearchResult,
+    all_collections = List(Collection)
+
+
+    search = Field(Search,
                    tbegin=Argument(DateTime, required=True),
                    tend=Argument(DateTime, required=True),
                    nframes=Argument(Int, required=True),
                    after=Argument(ID, required=False)
                    )
 
-    def resolve_frames(self, info, tbegin, tend, nframes, after=None):
+    def resolve_search(self, info, tbegin, tend, nframes, after=None):
+        print(info)
         _, frame_id = parse_node_id(after)
         ntotal, frames = db.get_frames(tbegin=tbegin, tend=tend, nframes=nframes, after=frame_id)
+        # all_collections = models.Collection.objects.all()
+
         return {'ntotal': ntotal, 'frames': frames}
 
+    def resolve_all_collections(self, info):
+        return models.Collection.objects.all()
 
 class CreateCollection(Mutation):
     class Arguments:

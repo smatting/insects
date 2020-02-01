@@ -1,23 +1,15 @@
 import React from "react";
 
-import { Rail, Slider, Handles, Ticks } from "react-compound-slider";
-import { subDays, startOfToday, format } from "date-fns";
+import { Slider, Handles, Ticks } from "react-compound-slider";
+import { format } from "date-fns";
 import { scaleTime } from "d3-scale";
 import _ from "lodash";
 import PropTypes from "prop-types";
 
-import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import Fab from "@material-ui/core/Fab";
-import IconButton from "@material-ui/core/IconButton";
-import AddIcon from "@material-ui/icons/Add";
-import DeleteIcon from "@material-ui/icons/Delete";
-import NavigationIcon from "@material-ui/icons/Navigation";
 
 import ZoomInIcon from "@material-ui/icons/ZoomIn";
 import ZoomOutIcon from "@material-ui/icons/ZoomOut";
-
-import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 
 // *******************************************************
 // TICK COMPONENT

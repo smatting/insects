@@ -1,15 +1,32 @@
 import datetime
 import re
+import os
 import math
-
-from django.db import connection
-from . import models
-
 import datetime
+import psycopg2
+
+# from . import models
+
 
 THUMB_HEIGHT = 200
 THUMB_WIDTH = int(1.3 * THUMB_HEIGHT)
 THUMB_PREFIX = f'http://195.201.97.57:5556/unsafe/{THUMB_WIDTH}x{THUMB_HEIGHT}/'
+
+dbsettings = {
+    'host': '195.201.97.57',
+    'port': 5432,
+    'user': os.environ['ECO_USER'],
+    'password': os.environ['ECO_PASSWORD'],
+    'dbname': 'eco'
+}
+
+# , cursor_factory=psycopg2.extras.RealDictCursor
+
+def connect():
+    conn = psycopg2.connect(**dbsettings)
+    return conn
+
+connection = connect()
 
 
 def foo():
@@ -163,24 +180,24 @@ def get_frames(tbegin, tend, nframes, after=None):
                                 nframes=nframes)
 
 
-def collection_create(name):
-    '''
-    Create empty connection
-    '''
-    now = datetime.datetime.now()
-    coll = models.Collection(name, date_created=now)
-    coll.save()
-    return coll
+# def collection_create(name):
+#     '''
+#     Create empty connection
+#     '''
+#     now = datetime.datetime.now()
+#     coll = models.Collection(name, date_created=now)
+#     coll.save()
+#     return coll
 
 
-def collection_add_subsample(coll_id, tbegin, tend, nsamples):
-    '''
-    Add subsample to a collection
-    '''
-    coll = models.Collection.objects.get(id=coll_id)
-    n, frames = frames_fetch_sub(tbegin, tend, lambda n: equidx(n, nsamples))
-    ids_ = [f['id'] for f in frames]
-    coll.frames.add(*ids_)
+# def collection_add_subsample(coll_id, tbegin, tend, nsamples):
+#     '''
+#     Add subsample to a collection
+#     '''
+#     coll = models.Collection.objects.get(id=coll_id)
+#     n, frames = frames_fetch_sub(tbegin, tend, lambda n: equidx(n, nsamples))
+#     ids_ = [f['id'] for f in frames]
+#     coll.frames.add(*ids_)
 
 
 def foo():
