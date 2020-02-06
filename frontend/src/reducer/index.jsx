@@ -16,8 +16,8 @@ const key = list => ({
 });
 
 const defaultSearch = {
-  startDate: new Date("2019-10-01T00:00:00"),
-  endDate: new Date("2019-12-31T00:00:00")
+  startDate: new Date("2019-11-15T00:00:00"),
+  endDate: new Date("2020-01-31T00:00:00")
 };
 
 const search = createReducer(defaultSearch, {

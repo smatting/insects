@@ -10,7 +10,7 @@ import csv
 import docopt
 
 stage_ddl = '''
-create temporary table frame_staging
+create table staging.frames
 (
     id text,
     cam_id text,
@@ -149,12 +149,12 @@ def insert_frames(cursor, frames):
         'local_filename'
     ]
     f = CSVLikeFile(get_rows(frames, columns))
-    cursor.execute(stage_ddl)
-    cursor.copy_expert(f'copy frame_staging from stdin with csv delimiter \',\';', f)
+    # cursor.execute(stage_ddl)
+    cursor.copy_expert(f'copy staging.frames from stdin with csv delimiter \',\';', f)
 
-    cursor.execute(insert_sql)
-    x = cursor.fetchall()
-    return x
+    # cursor.execute(insert_sql)
+    # x = cursor.fetchall()
+    # return x
 
 def run(sqlite_db, cam_id):
     '''
@@ -166,7 +166,7 @@ def run(sqlite_db, cam_id):
     with connect_db() as conn:
         cursor = conn.cursor()
         ids = insert_frames(cursor, frames)
-        print(f'Inserted {len(ids)} new frames to DB')
+        # print(f'Inserted {len(ids)} new frames to DB')
 
 
 def main():

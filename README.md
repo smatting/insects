@@ -231,7 +231,7 @@ get a equidistant subsample
 ```graphql
 {
     frames(tbegin: "2019-11-01T00:00:00",
-           tend: "2019-11-15T00:00:00",
+           tend: "2019-11-14T00:00:00",
            nframes: 10) {
       id,
       url,
@@ -274,3 +274,9 @@ zoom out button:
 https://codesandbox.io/s/rw97j317p
 https://observablehq.com/@d3/d3-scaletime
 https://observablehq.com/@d3/scale-ticks
+
+
+2019-11-15  Heimchen
+2020-01-15  Wanderheuschrecken
+2020-01-16  Wuestenheuschrecken
+
