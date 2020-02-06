@@ -21,6 +21,8 @@ import List from "@material-ui/core/List";
 import Typography from "@material-ui/core/Typography";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
 
 import Browser from "./container/Browser";
 import Frame from "./container/Frame";
@@ -50,13 +52,22 @@ const useStyles = makeStyles(theme => ({
   stripe: {
     backgroundColor: "red"
   },
-  toolbar: theme.mixins.toolbar
+  toolbar: theme.mixins.toolbar,
+  //   taps: theme.mixins.tabs,
+  tabs: {
+    backgroundColor: theme.palette.background.paper,
+    color: "black",
+    minHeight: "48px"
+  },
+  tabsPlaceholder: {
+    minHeight: "48px"
+  }
 }));
 
 const views = [
   { screenName: "Live", id: "LIVE" },
   { screenName: "Browser", id: "BROWSER" },
-  { screenName: "Single Dataset", id: "DATASET" },
+  //   { screenName: "Single Dataset", id: "DATASET" },
   { screenName: "Single Frame", id: "FRAME" }
 ];
 
@@ -72,25 +83,24 @@ const Index = ({ view, updateView }) => {
             Insect Counter
           </Typography>
         </Toolbar>
-      </AppBar>
-      <Drawer
-        className={classes.drawer}
-        variant="permanent"
-        classes={{
-          paper: classes.drawerPaper
-        }}
-      >
-        <div className={classes.toolbar} />
-        <List>
-          {views.map(({ screenName, id }, index) => (
-            <ListItem button key={id} onClick={() => updateView(id)}>
-              <ListItemText primary={screenName} />
-            </ListItem>
+        <Tabs
+          className={classes.tabs}
+          value={view}
+          onChange={(e, view) => updateView(view)}
+        >
+          {views.map((view, idx) => (
+            <Tab
+              label={view.screenName}
+              value={view.id}
+              key={"tab-" + idx}
+              id={view.id}
+            />
           ))}
-        </List>
-      </Drawer>
+        </Tabs>
+      </AppBar>
       <main className={classes.content}>
         <div className={classes.toolbar} />
+        <div className={classes.tabsPlaceholder} />
         {view == "BROWSER" ? <Browser /> : null}
         {view == "FRAME" ? <Frame /> : null}
         {view == "DATASET" ? <Dataset /> : null}
@@ -108,7 +118,6 @@ let socketIoMiddleware = createSocketIoMiddleware(
   (type, action) => action.server
 );
 
-// const middlewares = [epicMiddleware, logger];
 const middlewares = [epicMiddleware, socketIoMiddleware, logger];
 
 const enhancer = compose(applyMiddleware(...middlewares));

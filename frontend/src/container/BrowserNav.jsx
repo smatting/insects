@@ -93,20 +93,20 @@ const BrowserNav = ({ search, onSearchUpdate, onAddCollection }) => {
   return (
     <Grid container justify="space-around" alignItems="flex-end" spacing={5}>
       <Grid container item xs={4} spacing={3}>
-        {/* <DateTimePicker
+        <DateTimePicker
           date={search.startDate}
           setDate={startDate => onSearchUpdate({ startDate })}
           label="Start"
           classes={classes}
-        /> */}
+        />
       </Grid>
       <Grid container item xs={4} spacing={3}>
-        {/* <DateTimePicker
+        <DateTimePicker
           date={search.endDate}
           setDate={endDate => onSearchUpdate({ endDate })}
           label="End"
           classes={classes}
-        /> */}
+        />
       </Grid>
       <Grid container item xs={4} spacing={3}>
         <AddCollection
@@ -118,9 +118,9 @@ const BrowserNav = ({ search, onSearchUpdate, onAddCollection }) => {
       <Grid container item xs={12} spacing={3}>
         <DateRange
           startDate={search.startDate}
-          setStartDate={startDate => onSearchUpdate({ startDate })}
+          setStartDate={startDate => onSearchUpdate({ ...search, startDate })}
           endDate={search.endDate}
-          setEndDate={endDate => onSearchUpdate({ endDate })}
+          setEndDate={endDate => onSearchUpdate({ ...search, endDate })}
         />
       </Grid>
     </Grid>
