@@ -15,7 +15,6 @@ def object_as_dict(obj):
 
 
 app = Flask(__name__)
-# app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO()
 socketio.init_app(app, cors_allowed_origins="*")
 
@@ -59,6 +58,7 @@ def update_search(action):
     search = action['search']
     ntotal, frames = db.get_frames(tbegin=search['startDate'], tend=search['endDate'], nframes=10, after=None)
     search_results = {'ntotal': ntotal, 'frames': frames}
+    print(search_results)
     emit('action', {"type": 'SEARCH_UPDATED', 'searchResults': search_results})
 
 
