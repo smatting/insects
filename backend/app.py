@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_socketio import SocketIO, send, emit
 import datetime
+import json
+import numpy as np
 from . import db
 from . import models
 
@@ -14,9 +16,44 @@ def object_as_dict(obj):
             for c in inspect(obj).mapper.column_attrs}
 
 
+
+# credit: https://stackoverflow.com/questions/44146087/pass-user-built-json-encoder-into-flasks-jsonify
+class Better_JSON_ENCODER(json.JSONEncoder):
+    '''
+    Used to help jsonify numpy arrays or lists that contain numpy data types.
+    '''
+    def default(self, obj):
+        print(obj)
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, (datetime.datetime, datetime.date)):
+            print('datetime', obj)
+            return obj.isoformat()
+        else:
+            return super(Better_JSON_ENCODER, self).default(obj)
+
+
+# credit: https://github.com/miguelgrinberg/Flask-SocketIO/issues/274
+class BetterJsonWrapper(object):
+    @staticmethod
+    def dumps(*args, **kwargs):
+        if 'cls' not in kwargs:
+            kwargs['cls'] = Better_JSON_ENCODER
+        return json.dumps(*args, **kwargs)
+
+    @staticmethod
+    def loads(*args, **kwargs):
+        return json.loads(*args, **kwargs)
+
+
 app = Flask(__name__)
-socketio = SocketIO()
+socketio = SocketIO(json=BetterJsonWrapper)
 socketio.init_app(app, cors_allowed_origins="*")
+
 
 
 def test():
@@ -56,7 +93,8 @@ def handle_connection():
 
 def update_search(action):
     search = action['search']
-    ntotal, frames = db.get_frames(tbegin=search['startDate'], tend=search['endDate'], nframes=10, after=None)
+    with db.session_scope() as session:
+        ntotal, frames = db.get_frames_subsample(session, tbegin=search['startDate'], tend=search['endDate'], nframes=10)
     search_results = {'ntotal': ntotal, 'frames': frames}
     print(search_results)
     emit('action', {"type": 'SEARCH_UPDATED', 'searchResults': search_results})
