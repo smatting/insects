@@ -46,6 +46,10 @@ def test():
         # frames = coll.frames
         # return [object_as_dict(f) for f in frames]
 
+        # EXAMPLE: remove frame from collection
+        coll = session.query(models.Collection).get(7);
+
+
 @socketio.on('connect')
 def handle_connection():
     emit('action', {"type": 'SERVER_INIT'})
@@ -65,5 +69,5 @@ def handle_actions(action):
         update_search(action)
 
 
-if __name__ == '__main__':
+def debug():
     socketio.run(app, host='0.0.0.0', debug=True, port=5000)
