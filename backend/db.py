@@ -40,11 +40,25 @@ def get_cursor(session):
     return session.connection().connection.cursor()
 
 
-def manage():
-    # Base.metadata.create_all(engine)
+def manage_labels():
+    wanted_labels = [
+        'Heimchen (schistocerca gregaria)',
+        'Wanderheuschrecke (locusta migratoria)',
+        'Wüstenheuschrecke (schistocerca gregaria)',
+    ]
+    with session_scope() as session:
+        session.query(models.Label).delete()
+        for name in wanted_labels:
+            label = models.Label(name=name)
+            session.add(label)
 
-    # models.Collection.__table__.drop(engine)
-    # Base.metadata.create_all(engine, tables=[models.Collection.__table__])
+
+def manage_create_all():
+    Base.metadata.create_all(engine)
+
+
+def manage_migrate():
+    models.Appearance.__table__.drop(engine)
     Base.metadata.create_all(engine)
 
 

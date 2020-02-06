@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import (Table, ForeignKey, Column, String, Integer, DateTime, Sequence)
+from sqlalchemy import (Table, ForeignKey, Column, String, Integer, Float, DateTime, Sequence)
 from sqlalchemy.orm import relationship
 import datetime
 
@@ -32,3 +32,33 @@ class Collection(Base):
     # frames = relationship('Frame', order_by=Frame.timestamp)
     frames = relationship('Frame', secondary=collection_frame)
 
+
+class Creator(Base):
+    '''
+    Thing that created things: Algorithm or a user
+    '''
+    __tablename__ = 'creators'
+    id = Column(Integer, Sequence('creator_id_seq'), primary_key=True)
+    name = Column(String)
+    date_created = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+class Label(Base):
+    __tablename__ = 'labels'
+    id = Column(Integer, Sequence('label_id_seq'), primary_key=True)
+    name = Column(String)
+
+
+class Appearance(Base):
+    __tablename__ = 'appearances'
+    id = Column(Integer, Sequence('appearance_id_seq'), primary_key=True)
+    frame_id = Column(Integer, ForeignKey('frames.id'), nullable=False)
+    frame = relationship('Frame')
+    bbox_xmin = Column(Float)
+    bbox_xmax = Column(Float)
+    bbox_ymin = Column(Float)
+    bbox_ymax = Column(Float)
+    label_id = Column(Integer, ForeignKey('labels.id'))
+    creator_id = Column(Integer, ForeignKey('creators.id'))
+
+################################################################################

@@ -5,13 +5,36 @@ from . import db
 from . import models
 
 from sqlalchemy import inspect
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
+def to_dict(obj, rels=[], backref=None):
+    '''
+    Turn models to dicts. Nested relationships listed in `rels` are turned to dicts too,
+    otherwise they are missing. Hacky, barely tested.
 
-# NOTE: relationship fields will be missing
-def object_as_dict(obj):
-    return {c.key: getattr(obj, c.key)
-            for c in inspect(obj).mapper.column_attrs}
+    From https://mmas.github.io/sqlalchemy-serialize-json
+    '''
+    res = {column.key: getattr(obj, attr)
+           for attr, column in obj.__mapper__.c.items()}
+    if len(rels) > 0:
+        for attr, relation in obj.__mapper__.relationships.items():
+            if attr not in rels:
+                continue
+
+            if hasattr(relation, 'table'):
+                if backref == relation.table:
+                    continue
+
+            value = getattr(obj, attr)
+            if value is None:
+                res[relation.key] = None
+            elif isinstance(value.__class__, DeclarativeMeta):
+                res[relation.key] = to_dict(value, backref=obj.__table__, rels=rels)
+            else:
+                res[relation.key] = [to_dict(i, backref=obj.__table__, rels=rels)
+                                     for i in value]
+    return res
 
 
 app = Flask(__name__)
@@ -44,10 +67,25 @@ def test():
         # EXAMPLE: get collection with frames
         # coll =  session.query(models.Collection).get(7);
         # frames = coll.frames
-        # return [object_as_dict(f) for f in frames]
+        # return [to_dict(f) for f in frames]
 
         # EXAMPLE: remove frame from collection
-        coll = session.query(models.Collection).get(7);
+        # coll = session.query(models.Collection).get(7);
+        # return to_dict(coll, rels=['frames'])
+
+        # EXAMPLE: add an appearance
+        # frame = session.query(models.Frame).first()
+        # app = models.Appearance(frame=frame)
+        # session.add(app)
+
+        # EXAMPLE: update bbox
+        # app = session.query(models.Appearance).first()
+        # app.bbox_xmin = 42
+
+        # EXAMPLE: get all labels
+        # labels = session.query(models.Label).all()
+        # return [to_dict(label) for label in labels]
+
 
 
 @socketio.on('connect')
