@@ -33,4 +33,5 @@ in python.withPackages(ps: with ps;
   django-cors-headers
   django-filter
   sqlalchemy
+  numpy
 ])).env
