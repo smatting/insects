@@ -2,6 +2,16 @@ from flask import Flask
 from flask_socketio import SocketIO, send, emit
 import datetime
 from . import db
+from . import models
+
+from sqlalchemy import inspect
+
+
+
+# NOTE: relationship fields will be missing
+def object_as_dict(obj):
+    return {c.key: getattr(obj, c.key)
+            for c in inspect(obj).mapper.column_attrs}
 
 
 app = Flask(__name__)
@@ -14,8 +24,27 @@ def test():
     with db.session_scope() as session:
         tbegin = datetime.datetime(2019, 11, 1)
         tend = datetime.datetime(2019, 11, 15)
-        return db.get_frames_subsample(session, tbegin, tend, 10)
 
+        # EXAMPLE: get subsample
+        # return db.get_frames_subsample(session, tbegin, tend, 10)
+
+        # EXAMPLE: get single frame
+        # f = session.query(models.Frame).get(16597);
+
+        # EXAMPLE: add collection
+        # coll = models.Collection(name='test')
+        # session.add(coll)
+
+        # EXAMPLE: add subsample to collection
+        # coll = models.Collection(name='test')
+        # session.add(coll)
+        # session.flush()
+        # db.collection_add_frames_subsample(session, coll.id, tbegin, tend, 10)
+
+        # EXAMPLE: get collection with frames
+        # coll =  session.query(models.Collection).get(7);
+        # frames = coll.frames
+        # return [object_as_dict(f) for f in frames]
 
 @socketio.on('connect')
 def handle_connection():

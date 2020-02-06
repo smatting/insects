@@ -7,6 +7,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
 from .models import Base
+from . import models
+from psycopg2.extras import execute_values
 
 
 ECODB = os.environ['ECODB']
@@ -38,7 +40,11 @@ def get_cursor(session):
     return session.connection().connection.cursor()
 
 
-def create_schema():
+def manage():
+    # Base.metadata.create_all(engine)
+
+    # models.Collection.__table__.drop(engine)
+    # Base.metadata.create_all(engine, tables=[models.Collection.__table__])
     Base.metadata.create_all(engine)
 
 
@@ -88,7 +94,7 @@ def make_frame(id_, timestamp, url):
 #         timestamp,
 #         url
 #     from
-#         insects_frame
+#         eco.frames
 #     where
 #         %s < timestamp
 #         and timestamp < %s
@@ -110,13 +116,19 @@ def frames_fetch_sub(session, tbegin, tend, sub_fun):
     select
         count(*)
     from
-        insects_frame
+        eco.frames
     where
         %s <= timestamp
         and timestamp < %s
     '''
     cursor.execute(q, (tbegin, tend))
     (n, ) = cursor.fetchone()
+    if n <= 0:
+        return (0, [])
+
+    idxs = tuple(sub_fun(n))
+    if len(idxs) == 0:
+        return []
 
     q2 = '''
     select
@@ -128,20 +140,15 @@ def frames_fetch_sub(session, tbegin, tend, sub_fun):
             *,
             row_number() over (order by timestamp asc, url asc) as idx
         from
-            insects_frame
+            eco.frames
         where
             %s <= timestamp
             and timestamp < %s
     ) x
         where x.idx in %s
     '''
-    if n <= 0:
-        return (0, [])
-
-    idxs = tuple(sub_fun(n))
-    if len(idxs) == 0:
-        return []
     cursor.execute(q2, (tbegin, tend, idxs))
+
     rows = cursor.fetchall()
 
     frames = []
@@ -156,3 +163,9 @@ def get_frames_subsample(session, tbegin, tend, nframes=10):
     return frames_fetch_sub(session, tbegin, tend, lambda n: equidx(n, nframes))
 
 
+def collection_add_frames_subsample(session, collection_id, tbegin, tend, nframes=10):
+    n, frames = frames_fetch_sub(session, tbegin, tend, lambda n: equidx(n, nframes))
+    data = [(collection_id, frame['id']) for frame in frames]
+    q = 'insert into eco.collection_frame (collection_id, frame_id) values %s'
+    cursor = get_cursor(session)
+    execute_values(cursor, q, data, page_size=100)
