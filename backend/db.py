@@ -1,41 +1,45 @@
 import datetime
 import re
 import os
-import math
 import datetime
 import psycopg2
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from contextlib import contextmanager
+from .models import Base
 
-# from . import models
+
+ECODB = os.environ['ECODB']
+engine = create_engine(ECODB, echo=True)
+# session class
+Session = sessionmaker(bind=engine)
 
 
 THUMB_HEIGHT = 200
 THUMB_WIDTH = int(1.3 * THUMB_HEIGHT)
 THUMB_PREFIX = f'http://195.201.97.57:5556/unsafe/{THUMB_WIDTH}x{THUMB_HEIGHT}/'
 
-dbsettings = {
-    'host': '195.201.97.57',
-    'port': 5432,
-    'user': os.environ['ECO_USER'],
-    'password': os.environ['ECO_PASSWORD'],
-    'dbname': 'eco'
-}
 
-# , cursor_factory=psycopg2.extras.RealDictCursor
-
-def connect():
-    conn = psycopg2.connect(**dbsettings)
-    return conn
-
-connection = connect()
+@contextmanager
+def session_scope():
+    """Provide a transactional scope around a series of operations."""
+    session = Session()
+    try:
+        yield session
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
 
 
-def foo():
-    # cursor = connection.cursor()
-    # cursor.execute('select count(*) from insects_frame')
-    # return cursor.fetchall()
-    tbegin = datetime.datetime(2019, 11, 1)
-    tend = datetime.datetime(2019, 11, 15)
-    return get_subsample(tbegin, tend)
+def get_cursor(session):
+    return session.connection().connection.cursor()
+
+
+def create_schema():
+    Base.metadata.create_all(engine)
 
 
 def equidx(n, k):
@@ -75,22 +79,6 @@ def make_frame(id_, timestamp, url):
     return frame
 
 
-def get_frame(frame_id):
-    cursor = connection.cursor()
-    q = '''
-        select
-            id,
-            timestamp,
-            url
-        from
-            insects_frame
-        where id = %s
-    '''
-    cursor.execute(q, (frame_id, ))
-    (id_, timestamp, url) = cursor.fetchone()
-    return make_frame(id_, timestamp, url)
-
-
 # def get_frames_continuous(tbegin, tend, after, nframes=10):
 #     frame = get_frame(after)
 #     cursor = connection.cursor()
@@ -114,8 +102,9 @@ def get_frame(frame_id):
 #         frames.append(frame)
 #     return len(frames), frames
 
-def frames_fetch_sub(tbegin, tend, sub_fun):
-    cursor = connection.cursor()
+
+def frames_fetch_sub(session, tbegin, tend, sub_fun):
+    cursor = get_cursor(session)
 
     q = '''
     select
@@ -163,55 +152,7 @@ def frames_fetch_sub(tbegin, tend, sub_fun):
     return n, frames
 
 
-def get_frames_subsample(tbegin, tend, nframes=10):
-    return frames_fetch_sub(tbegin, tend, lambda n: equidx(n, nframes))
+def get_frames_subsample(session, tbegin, tend, nframes=10):
+    return frames_fetch_sub(session, tbegin, tend, lambda n: equidx(n, nframes))
 
 
-def get_frames(tbegin, tend, nframes, after=None):
-    '''
-    If `after` is provided return the next nframes after it
-    else return a equidistant sample in [tbegin, tend].
-
-    Args:
-        after (int): A frame_id
-    '''
-    return get_frames_subsample(tbegin=tbegin,
-                                tend=tend,
-                                nframes=nframes)
-
-
-# def collection_create(name):
-#     '''
-#     Create empty connection
-#     '''
-#     now = datetime.datetime.now()
-#     coll = models.Collection(name, date_created=now)
-#     coll.save()
-#     return coll
-
-
-# def collection_add_subsample(coll_id, tbegin, tend, nsamples):
-#     '''
-#     Add subsample to a collection
-#     '''
-#     coll = models.Collection.objects.get(id=coll_id)
-#     n, frames = frames_fetch_sub(tbegin, tend, lambda n: equidx(n, nsamples))
-#     ids_ = [f['id'] for f in frames]
-#     coll.frames.add(*ids_)
-
-
-def foo():
-    # from .data import initialize
-
-    # # initialize()
-    # # ids = [f.id for f in models.Frame.objects.all()]
-    # # coll_id = create_empty_collection()
-    # # print(coll_id)
-    # # coll = models.Collection.objects.get(id=coll_id)
-    # # coll.frames.add(*ids)
-
-    # tbegin = "2019-11-15T00:00:00",
-    tbegin = datetime.datetime(2019, 11, 15)
-    # tend = "2019-11-15T14:00:00"
-    tend = datetime.datetime(2019, 11, 15, 14)
-    return collection_add_subsample(10, tbegin, tend, subsample=0.1)

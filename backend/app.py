@@ -1,13 +1,20 @@
 from flask import Flask
 from flask_socketio import SocketIO, send, emit
-
-import db
+import datetime
+from . import db
 
 
 app = Flask(__name__)
 # app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO()
 socketio.init_app(app, cors_allowed_origins="*")
+
+
+def test():
+    with db.session_scope() as session:
+        tbegin = datetime.datetime(2019, 11, 1)
+        tend = datetime.datetime(2019, 11, 15)
+        return db.get_frames_subsample(session, tbegin, tend, 10)
 
 
 @socketio.on('connect')
