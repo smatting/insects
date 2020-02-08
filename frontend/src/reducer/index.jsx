@@ -2,7 +2,7 @@ import { combineReducers } from "redux";
 import { createReducer } from "redux-starter-kit";
 import _ from "lodash";
 
-const view = createReducer("BROWSER", {
+const view = createReducer("FRAME", {
   VIEW_UPDATE: (state, action) => action.view
 });
 
@@ -13,6 +13,23 @@ const liveImage = createReducer(null, {
 const key = list => ({
   byKey: _.keyBy(list, "id"),
   allIds: _.map(list, ({ id }) => id)
+});
+
+const collection = createReducer(
+  { frames: key([]), currentFrameId: null },
+  {
+    COLLECTION_LOADED: (state, action) => ({
+      id: action.collection.id,
+      frames: key(action.collection.frames),
+      currentFrameId: action.collection.frames[0].id
+    })
+  }
+);
+
+const appearances = createReducer(key([]), {});
+
+const species = createReducer(key([]), {
+  SERVER_INIT: (state, action) => key(action.species)
 });
 
 const defaultSearch = {
@@ -35,7 +52,10 @@ const reducers = combineReducers({
   view,
   search,
   searchResults,
-  liveImage
+  liveImage,
+  appearances,
+  collection,
+  species
 });
 
 export default reducers;

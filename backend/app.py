@@ -39,6 +39,10 @@ def to_dict(obj, rels=[], backref=None):
     return res
 
 
+def id_to_str(obj):
+    return {**obj, 'id': str(obj['id'])}
+
+
 
 # credit: https://stackoverflow.com/questions/44146087/pass-user-built-json-encoder-into-flasks-jsonify
 class Better_JSON_ENCODER(json.JSONEncoder):
@@ -123,10 +127,23 @@ def test():
         # return [to_dict(label) for label in labels]
 
 
+def load_collection(collection_id):
+    with db.session_scope() as session:
+        coll = session.query(models.Collection).get(collection_id)
+        frames = coll.frames
+        coll = {'id': coll.id, 'frames': [id_to_str(to_dict(f)) for f in frames]}
+    emit('action', {"type": 'COLLECTION_LOADED', 'collection': coll})
+
 
 @socketio.on('connect')
 def handle_connection():
-    emit('action', {"type": 'SERVER_INIT'})
+    with db.session_scope() as session:
+        species = session.query(models.Label).all()
+        species = [id_to_str(to_dict(s)) for s in species]
+    emit('action', {"type": 'SERVER_INIT', 'species': species})
+
+    # temporary
+    load_collection(7)
 
 
 def update_search(action):

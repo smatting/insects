@@ -1,11 +1,13 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import { connect } from "react-redux";
+
+import * as a from "../actions";
 
 import Annotation from "react-image-annotation";
 import Rectangle from "./Rectangle";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
-import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormLabel from "@material-ui/core/FormLabel";
@@ -26,9 +28,7 @@ import Paper from "@material-ui/core/Paper";
 
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
-import CardMedia from "@material-ui/core/CardMedia";
 import CardContent from "@material-ui/core/CardContent";
-import CardActions from "@material-ui/core/CardActions";
 
 const useStyles = makeStyles({
   img: { height: "100%" },
@@ -74,12 +74,12 @@ const SpeciesSelector = ({
         value={activeSpecies}
         onChange={onSpeciesChange}
       >
-        {species.map(s => (
+        {species.allIds.map(s => (
           <FormControlLabel
-            value={s.id}
+            value={species.byKey[s].id}
             control={<Radio />}
-            label={s.name}
-            key={"species-radio-" + s.id}
+            label={species.byKey[s].name}
+            key={"species-radio-" + species.byKey[s].id}
           />
         ))}
       </RadioGroup>
@@ -134,14 +134,24 @@ const dummyData = {
 };
 
 const Frame = ({
-  url = dummyData.url,
-  species = dummyData.species,
-  timestamp = dummyData.timestamp
+  species,
+  frame,
+  appearances,
+  onChangeFrame,
+  onAddAppearance,
+  prevId,
+  nextId
 }) => {
+  console.log(species);
+  if (!frame) {
+    return null;
+  }
+
   const classes = useStyles();
+  const { url, timestamp } = frame;
   const [annotations, setAnnotations] = React.useState([]);
   const [annotation, setAnnotation] = React.useState({});
-  const [activeSpecies, setActiveSpecies] = React.useState(species[0]["id"]);
+  const [activeSpecies, setActiveSpecies] = React.useState(species.allIds[0]);
   //   const [activeAnnotation, setActiveAnnotation] = React.useState();
   const species_by_key = _.keyBy(species, "id");
 
@@ -195,10 +205,16 @@ const Frame = ({
             title={timestamp}
             action={
               <>
-                <IconButton aria-label="before">
+                <IconButton
+                  aria-label="before"
+                  onClick={() => onChangeFrame(prevId)}
+                >
                   <NavigateBeforeIcon />
                 </IconButton>
-                <IconButton aria-label="next">
+                <IconButton
+                  aria-label="next"
+                  onClick={() => onChangeFrame(nextId)}
+                >
                   <NavigateNextIcon />
                 </IconButton>
               </>
@@ -230,16 +246,49 @@ const Frame = ({
           />
         </Grid>
         <Grid container item xs={12} spacing={1}>
-          <LabelList
+          {/* <LabelList
             classes={classes}
             annotations={annotations}
             onDelete={onDelete}
             onActive={onActive}
-          />
+          /> */}
         </Grid>
       </Grid>
     </Grid>
   );
 };
 
-export default Frame;
+// (url = dummyData.url),
+//   (species = dummyData.species),
+//   (timestamp = dummyData.timestamp);
+
+const createFrameProps = state => {
+  let prevId, nextId, frame;
+  const frames = state.collection.frames;
+  console.log(state.collection.frames);
+  if (frames.allIds.length) {
+    frame = frames.byKey[state.collection.currentFrameId];
+    const frameIdx = frame.idx;
+    if (frameIdx > 0) {
+      prevId = frames.allIds[frameIdx - 1];
+    }
+    if (frameIdx < frames.allIds.length - 1) {
+      nextId = frames.allIds[frameIdx + 1];
+    }
+  }
+  return { prevId, nextId, frame, collectionId: state.collection.id };
+};
+
+export default connect(
+  (state, ownProps) => ({
+    ...createFrameProps(state),
+    species: state.species,
+    appearances: state.appearances
+  }),
+  (dispatch, ownProps) => ({
+    onChangeFrame: id => dispatch(a.selectCollectionFrame(id)),
+    onAddAppearance: appearance =>
+      dispatch(a.addAppearance({ frameId: frame.id, appearance })),
+    onDeleteAppearance: id => dispatch(a.deleteAppearance(id))
+  })
+)(Frame);
