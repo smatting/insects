@@ -26,7 +26,12 @@ const collection = createReducer(
   }
 );
 
-const appearances = createReducer(key([]), {});
+const appearances = createReducer(key([]), {
+  APPEARANCE_ADDED: (state, action) => ({
+    byKey: { ...state.byKey, [action.appearance.id]: action.appearance },
+    allIds: [...state.allIds, action.appearance.id]
+  })
+});
 
 const species = createReducer(key([]), {
   SERVER_INIT: (state, action) => key(action.species)

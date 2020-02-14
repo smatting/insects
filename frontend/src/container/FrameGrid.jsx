@@ -22,7 +22,7 @@ const useStyles = makeStyles({
   }
 });
 
-const FrameTile = ({ url, timestamp, thumbnail, selected, showSelect }) => {
+const FrameTile = ({ id, timestamp, thumbnail, selected, showSelect }) => {
   const classes = useStyles();
   return (
     <GridListTile>
@@ -30,7 +30,7 @@ const FrameTile = ({ url, timestamp, thumbnail, selected, showSelect }) => {
       <GridListTileBar
         titlePosition="top"
         actionPosition="left"
-        title={timestamp}
+        title={id}
         actionIcon={
           <IconButton aria-label={`select`} className={classes.icon}>
             {showSelect ? (

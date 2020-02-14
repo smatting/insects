@@ -5,6 +5,7 @@ import json
 import numpy as np
 from . import db
 from . import models
+from .utils import snakeize_dict_keys, camelize_dict_keys
 
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -135,23 +136,41 @@ def load_collection(collection_id):
     emit('action', {"type": 'COLLECTION_LOADED', 'collection': coll})
 
 
+def delete_appearance():
+    #TODO
+    pass
+    # emit('action', {"type": 'APPEARANCE_DELETED', 'collection': coll})
+
+
+def add_appearance(frameId, appearance):
+    with db.session_scope() as session:
+        frame = session.query(models.Frame).get(frameId)
+        print(appearance)
+        app = models.Appearance(frame=frame, **snakeize_dict_keys(appearance))
+        session.add(app)
+        session.commit()
+        app_dict = camelize_dict_keys(id_to_str(to_dict(app)))
+    emit('action', {
+        "type": 'APPEARANCE_ADDED',
+        'appearance': app_dict,
+        'frameId': frameId
+    })
+
+
 @socketio.on('connect')
 def handle_connection():
     with db.session_scope() as session:
         species = session.query(models.Label).all()
         species = [id_to_str(to_dict(s)) for s in species]
     emit('action', {"type": 'SERVER_INIT', 'species': species})
-
-    # temporary
     load_collection(7)
 
 
 def update_search(action):
     search = action['search']
     with db.session_scope() as session:
-        ntotal, frames = db.get_frames_subsample(session, tbegin=search['startDate'], tend=search['endDate'], nframes=10)
+        ntotal, frames = db.get_frames_subsample(session, tbegin=search['startDate'], tend=search['endDate'], nframes=50)
     search_results = {'ntotal': ntotal, 'frames': frames}
-    print(search_results)
     emit('action', {"type": 'SEARCH_UPDATED', 'searchResults': search_results})
 
 
@@ -160,6 +179,14 @@ def handle_actions(action):
     print(action)
     if action['type'] == "SEARCH_UPDATE":
         update_search(action)
+    if action['type'] == "APPEARANCE_ADD":
+        print('APPEARANCE_ADD', action)
+        add_appearance(action['frameId'], action['appearance'])
+    if action['type'] == "APPEARANCE_DELETE":
+        print('APPEARANCE_ADD', action)
+    if action['type'] == "COLLECTIONFRAME_SELECT":
+        print('COLLECTIONFRAME_SELECT', action)
+
 
 
 def debug():

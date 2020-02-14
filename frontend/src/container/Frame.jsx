@@ -87,7 +87,14 @@ const SpeciesSelector = ({
   );
 };
 
-const LabelList = ({ annotations, classes, onDelete, onActive }) => {
+const LabelList = ({
+  appearances,
+  activeId,
+  classes,
+  onDelete,
+  onActive,
+  species
+}) => {
   return (
     <TableContainer component={Paper}>
       <Table
@@ -96,21 +103,21 @@ const LabelList = ({ annotations, classes, onDelete, onActive }) => {
         aria-label="a dense table"
       >
         <TableBody>
-          {annotations.map((annotation, idx) => (
+          {appearances.allIds.map(id => (
             <TableRow
-              key={"label-" + idx}
-              selected={annotation.active}
-              onMouseEnter={() => onActive(idx)}
+              key={"label-" + id}
+              selected={activeId == id}
+              onMouseEnter={() => onActive(id)}
               onMouseLeave={() => onActive(null)}
             >
               <TableCell padding="checkbox">
                 <LabelIcon />
               </TableCell>
               <TableCell align="right">
-                {annotation.data.species.name}
+                {species.byKey[appearances.byKey[id].labelId].name}
               </TableCell>
               <TableCell padding="checkbox">
-                <IconButton aria-label="delete" onClick={() => onDelete(idx)}>
+                <IconButton aria-label="delete" onClick={() => onDelete(id)}>
                   <DeleteIcon />
                 </IconButton>
               </TableCell>
@@ -122,15 +129,37 @@ const LabelList = ({ annotations, classes, onDelete, onActive }) => {
   );
 };
 
-const dummyData = {
-  url:
-    "http://storage.googleapis.com/eco1/frames/cam1/2019-11-15/19/01-20191115192717-02.jpg",
-  timestamp: "123123",
-  species: [
-    { name: "Heimchen", id: "sdasd" },
-    { name: "Wander-Heuschrecken", id: "asfaa" },
-    { name: "Wüsten-Heuschrecken", id: "hgawd" }
-  ]
+const annotationToAppearance = ({ geometry }, activeSpecies) => {
+  return {
+    bboxXmin: geometry.x / 100,
+    bboxXmax: (geometry.x + geometry.width) / 100,
+    bboxYmin: geometry.y / 100,
+    bboxYmax: (geometry.y + geometry.height) / 100,
+    labelId: activeSpecies
+    // creatorId: 0
+  };
+};
+
+const appearanceToAnnotation = (
+  { id, bboxXmin, bboxXmax, bboxYmin, bboxYmax, labelId, creatorId },
+  species,
+  activeAnnotation
+) => {
+  return {
+    geometry: {
+      x: bboxXmin * 100,
+      y: bboxYmin * 100,
+      width: (bboxXmax - bboxXmin) * 100,
+      height: (bboxYmax - bboxYmin) * 100,
+      type: "RECTANGLE"
+    },
+    data: {
+      species: species.byKey[labelId],
+      id,
+      creator: "Test",
+      active: activeAnnotation == id
+    }
+  };
 };
 
 const Frame = ({
@@ -139,6 +168,7 @@ const Frame = ({
   appearances,
   onChangeFrame,
   onAddAppearance,
+  onDeleteAppearance,
   prevId,
   nextId
 }) => {
@@ -149,51 +179,63 @@ const Frame = ({
 
   const classes = useStyles();
   const { url, timestamp } = frame;
-  const [annotations, setAnnotations] = React.useState([]);
+  //   const [annotations, setAnnotations] = React.useState([]);
   const [annotation, setAnnotation] = React.useState({});
   const [activeSpecies, setActiveSpecies] = React.useState(species.allIds[0]);
-  //   const [activeAnnotation, setActiveAnnotation] = React.useState();
-  const species_by_key = _.keyBy(species, "id");
+  const [activeAnnotation, setActiveAnnotation] = React.useState();
+  //   const species_by_key = _.keyBy(species, "id");
 
-  const onDelete = idx => {
-    annotations.splice(idx, 1);
-    setAnnotations([...annotations]);
-  };
+  //   const onDelete = idx => {
+  //     annotations.splice(idx, 1);
+  //     setAnnotations([...annotations]);
+  //   };
 
   const onActive = activeIdx => {
-    setAnnotations(
-      annotations.map((a, idx) => ({ ...a, active: idx == activeIdx }))
-    );
+    setActiveAnnotation(activeIdx);
   };
+
+  //   const thisAnnotations = annotations.map((a, idx) => ({
+  //     ...a,
+  //     active: idx == activeIdx
+  //   }));
+
+  const annotations = appearances.allIds.map(id =>
+    appearanceToAnnotation(appearances.byKey[id], species, activeAnnotation)
+  );
+
+  console.log(annotations);
 
   const onChange = a => {
     if (a != annotation) {
       setAnnotation(a);
+      console.log(a);
     }
   };
 
-  const onSubmit = (test, test2) => {
-    const { geometry } = annotation;
-    console.log("annotation", annotation, test, test2);
-    if (geometry) {
+  const onSubmit = () => {
+    // const { geometry } = annotation;
+    if (annotation.geometry) {
       setAnnotation({});
-      setAnnotations(
-        annotations.concat(
-          {
-            geometry,
-            data: {
-              species: species_by_key[activeSpecies],
-              id: Math.random()
-            }
-          }
-          //   () => setActiveAnnotation(annotations.length)
-        )
+      onAddAppearance(
+        frame.id,
+        annotationToAppearance(annotation, activeSpecies)
       );
+      //   setAnnotations(
+      //     annotations.concat(
+      // {
+      //   geometry,
+      //   data: {
+      //     species: species_by_key[activeSpecies],
+      //     id: Math.random()
+      //   }
+      // }
+      //       //   () => setActiveAnnotation(annotations.length)
+      //     )
+      //   );
     }
   };
 
   const onSpeciesChange = (e, id) => {
-    console.log(e, id);
     setActiveSpecies(id);
   };
 
@@ -246,12 +288,14 @@ const Frame = ({
           />
         </Grid>
         <Grid container item xs={12} spacing={1}>
-          {/* <LabelList
+          <LabelList
             classes={classes}
-            annotations={annotations}
-            onDelete={onDelete}
+            appearances={appearances}
+            species={species}
+            activeId={activeAnnotation}
+            onDelete={onDeleteAppearance}
             onActive={onActive}
-          /> */}
+          />
         </Grid>
       </Grid>
     </Grid>
@@ -265,7 +309,7 @@ const Frame = ({
 const createFrameProps = state => {
   let prevId, nextId, frame;
   const frames = state.collection.frames;
-  console.log(state.collection.frames);
+  console.log(frames);
   if (frames.allIds.length) {
     frame = frames.byKey[state.collection.currentFrameId];
     const frameIdx = frame.idx;
@@ -276,6 +320,7 @@ const createFrameProps = state => {
       nextId = frames.allIds[frameIdx + 1];
     }
   }
+  console.log({ prevId, nextId, frame, collectionId: state.collection.id });
   return { prevId, nextId, frame, collectionId: state.collection.id };
 };
 
@@ -287,8 +332,9 @@ export default connect(
   }),
   (dispatch, ownProps) => ({
     onChangeFrame: id => dispatch(a.selectCollectionFrame(id)),
-    onAddAppearance: appearance =>
-      dispatch(a.addAppearance({ frameId: frame.id, appearance })),
-    onDeleteAppearance: id => dispatch(a.deleteAppearance(id))
+    onAddAppearance: (frameId, appearance) =>
+      dispatch(a.addAppearance({ frameId, appearance })),
+    onDeleteAppearance: id => dispatch(a.deleteAppearance(id)),
+    foo: console.log("ownProps", ownProps)
   })
 )(Frame);
