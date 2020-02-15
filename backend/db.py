@@ -179,8 +179,10 @@ def fetch_frame_ids_subsample(session, frames_query, nframes):
     where n != n_lag
         or n_lag is null
     '''
+    d = frames_query_dict(frames_query)
+    d['n'] = nframes
     cursor = get_cursor(session)
-    cursor.execute(q, {'tbegin': frames_query.tbegin, 'tend': frames_query.tend, 'n': nframes})
+    cursor.execute(q, d)
     rows = cursor.fetchall()
     ids_ = [r[0] for r in rows]
 
@@ -190,7 +192,7 @@ def fetch_frame_ids_subsample(session, frames_query, nframes):
         from
         {sqlify_sql_expr(sql_expr(frames_query))}
     '''
-    cursor.execute(q2, {'tbegin': frames_query.tbegin, 'tend': frames_query.tend})
+    cursor.execute(q2, frames_query_dict(frames_query))
     count = cursor.fetchall()[0][0]
 
     return count, ids_
@@ -231,8 +233,8 @@ def test():
         session.add(coll)
         session.flush()
 
-        collection_add_frames_via_query(session, coll.id, frames_query, nframes=100)
-        # collection_add_frames_via_query(session, coll.id, frames_query)
+        # collection_add_frames_via_query(session, coll.id, frames_query, nframes=100)
+        collection_add_frames_via_query(session, coll.id, frames_query)
         print(f'collection id: {coll.id}')
 
 
@@ -243,3 +245,9 @@ def test2():
         frames_query = FramesQuery(tbegin, tend, None)
         return frames_query
         collection_remove_frames_via_query(session, 23, frames_query)
+
+
+def test3():
+    with session_scope() as session:
+        frames_query = FramesQuery(None, None, 27)
+        return fetch_frame_ids_subsample(session, frames_query, 10)
