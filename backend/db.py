@@ -10,13 +10,15 @@ from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
 from psycopg2.extras import execute_values
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
+import logging
 
 from . import models
-from . models import Base
+from . models import Base, FramesQuery
 from . utils import to_dict
 
 ECODB = os.environ['ECODB']
-engine = create_engine(ECODB, echo=True)
+# engine = create_engine(ECODB, echo=True)
+engine = create_engine(ECODB, echo=False)
 # session class
 Session = sessionmaker(bind=engine)
 
@@ -65,31 +67,30 @@ def manage_migrate_labels():
     pop_labels()
 
 
-# def get_frames_continuous(tbegin, tend, after, nframes=10):
-#     frame = get_frame(after)
-#     cursor = connection.cursor()
-#     q = '''
-#     select
-#         id,
-#         timestamp,
-#         url
-#     from
-#         eco.frames
-#     where
-#         %s < timestamp
-#         and timestamp < %s
-#     order by timestamp asc, url asc
-#     limit %s
-#     '''
-#     cursor.execute(q, (frame.timestamp, tend, nframes))
-#     frames = []
-#     for (id_, timestamp, url) in cursor.fetchall():
-#         frame = make_frame(id_, timestamp, url)
-#         frames.append(frame)
-#     return len(frames), frames
+def fetch_frame_ids(session, frames_query, pagination=None):
+    q_unpaged = '''
+    select
+        id
+    from
+    eco.frames
+    where
+        %(tbegin)s <= "timestamp"
+        and "timestamp" < %(tend)s
+    order by "timestamp" asc
+    '''
+    cursor = get_cursor(session)
+    cursor.execute(q_unpaged, {'tbegin': frames_query.tbegin, 'tend': frames_query.tend})
+    rows = cursor.fetchall()
+    ids_ = [r[0] for r in rows]
+    return ids_
 
 
-def fetch_frames_subsample(session, tbegin, tend, n):
+def fetch_frame_ids_subsample(session, frames_query, nframes):
+    '''
+    Args:
+        frames_query (FramesQuery):
+    '''
+
     q = '''
     with
 
@@ -132,7 +133,7 @@ def fetch_frames_subsample(session, tbegin, tend, n):
         or n_lag is null
     '''
     cursor = get_cursor(session)
-    cursor.execute(q, {'tbegin': tbegin, 'tend': tend, 'n': n})
+    cursor.execute(q, {'tbegin': frames_query.tbegin, 'tend': frames_query.tend, 'n': nframes})
     rows = cursor.fetchall()
     ids_ = [r[0] for r in rows]
 
@@ -145,22 +146,55 @@ def fetch_frames_subsample(session, tbegin, tend, n):
             %(tbegin)s <= "timestamp"
             and "timestamp" < %(tend)s
     '''
-    cursor.execute(q2, {'tbegin': tbegin, 'tend': tend})
+    cursor.execute(q2, {'tbegin': frames_query.tbegin, 'tend': frames_query.tend})
     count = cursor.fetchall()[0][0]
 
     return count, ids_
 
 
-def get_frames_subsample(session, tbegin, tend, nframes=10):
-    count, ids = fetch_frames_subsample(session, tbegin, tend, n=nframes)
+def get_frames_subsample(session, frames_query, nframes=10):
+    count, ids = fetch_frame_ids_subsample(session, frames_query=frames_query, nframes=nframes)
     frames = session.query(models.Frame).filter(models.Frame.id.in_(ids)).all()
     return count, frames
+
+
+def collection_add_frames_via_query(session, collection_id, frames_query, nframes=None):
+    if nframes is None:
+        ids_ = fetch_frame_ids(session, frames_query)
+    else:
+        _, ids_ = fetch_frame_ids_subsample(session, frames_query, nframes)
+
+    data = [(collection_id, id_) for id_ in ids_]
+    q = 'insert into eco.collection_frame (collection_id, frame_id) values %s on conflict do nothing'
+    cursor = get_cursor(session)
+    execute_values(cursor, q, data, page_size=1000)
+
+
+def collection_remove_frames_via_query(session, collection_id, frames_query):
+    ids_ = fetch_frame_ids(session, frames_query)
+    q = 'delete from eco.collection_frame where collection_id = %s and frame_id in %s'
+    cursor = get_cursor(session)
+    cursor.execute(q, (collection_id, tuple(ids_)))
 
 
 def test():
     with session_scope() as session:
         tbegin = datetime.datetime(2019, 11, 1)
-        tend = datetime.datetime(2019, 11, 15)
-        cnt, frames = get_frames_subsample(session, tbegin, tend, nframes=10)
-        for frame in frames:
-            return to_dict(frame)
+        tend = datetime.datetime(2019, 11, 16)
+        frames_query = FramesQuery(tbegin, tend)
+
+        coll = models.Collection(name='foo')
+        session.add(coll)
+        session.flush()
+
+        # collection_add_frames_via_query(session, coll.id, frames_query, nframes=100)
+        collection_add_frames_via_query(session, coll.id, frames_query)
+        print(f'collection id: {coll.id}')
+
+
+def test2():
+    with session_scope() as session:
+        tbegin = datetime.datetime(2019, 11, 1)
+        tend = datetime.datetime(2019, 11, 16)
+        frames_query = FramesQuery(tbegin, tend)
+        collection_remove_frames_via_query(session, 23, frames_query)

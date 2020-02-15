@@ -4,6 +4,7 @@ from sqlalchemy import (Table, ForeignKey, Column, String, Integer, Float, DateT
 from sqlalchemy.orm import relationship
 import datetime
 from sqlalchemy.ext.hybrid import hybrid_property
+from collections import namedtuple
 
 
 
@@ -13,6 +14,8 @@ Base.metadata.schema = 'eco'
 THUMB_HEIGHT = 200
 THUMB_WIDTH = int(1.3 * THUMB_HEIGHT)
 THUMB_PREFIX = f'http://195.201.97.57:5556/unsafe/{THUMB_WIDTH}x{THUMB_HEIGHT}/'
+
+FramesQuery = namedtuple('FramesQuery', ['tbegin', 'tend'])
 
 
 def concat_paths(p1, p2):
