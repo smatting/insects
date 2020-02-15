@@ -1,12 +1,13 @@
 import datetime
 import re
 import os
+import json
 import datetime
 import psycopg2
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
-from .models import Base
+from . models import Base
 from . import models
 from psycopg2.extras import execute_values
 
@@ -20,6 +21,11 @@ Session = sessionmaker(bind=engine)
 THUMB_HEIGHT = 200
 THUMB_WIDTH = int(1.3 * THUMB_HEIGHT)
 THUMB_PREFIX = f'http://195.201.97.57:5556/unsafe/{THUMB_WIDTH}x{THUMB_HEIGHT}/'
+
+
+def load_json(file):
+    with open(file, 'r') as f:
+        return json.load(f)
 
 
 @contextmanager
@@ -40,16 +46,12 @@ def get_cursor(session):
     return session.connection().connection.cursor()
 
 
-def manage_labels():
-    wanted_labels = [
-        'Heimchen (schistocerca gregaria)',
-        'Wanderheuschrecke (locusta migratoria)',
-        'Wüstenheuschrecke (schistocerca gregaria)',
-    ]
+def pop_labels():
+    labels = load_json('backend/data/labels.json')
     with session_scope() as session:
         session.query(models.Label).delete()
-        for name in wanted_labels:
-            label = models.Label(name=name)
+        for l in labels:
+            label = models.Label(**l)
             session.add(label)
 
 
@@ -57,9 +59,12 @@ def manage_create_all():
     Base.metadata.create_all(engine)
 
 
-def manage_migrate():
-    models.Appearance.__table__.drop(engine)
-    Base.metadata.create_all(engine)
+def manage_migrate_labels():
+    # models.AppearanceLabel.__table__.drop(engine)
+    # models.Label.__table__.drop(engine)
+    # models.Appearance.__table__.drop(engine)
+    # Base.metadata.create_all(engine)
+    pop_labels()
 
 
 def equidx(n, k):

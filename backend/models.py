@@ -47,6 +47,23 @@ class Label(Base):
     __tablename__ = 'labels'
     id = Column(Integer, Sequence('label_id_seq'), primary_key=True)
     name = Column(String)
+    scientificName = Column(String)
+    systematicLevel = Column(String)
+
+
+class AppearanceLabel(Base):
+    __tablename__ = 'appearance_label'
+    id = Column(Integer, Sequence('appearance_label_id_seq'), primary_key=True)
+    creator_id = Column(Integer, ForeignKey('creators.id'))
+    label_id = Column(Integer, ForeignKey('labels.id'))
+    date_created = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+appearance_label_link = \
+    Table('appearance_label_link',
+          Base.metadata,
+          Column('appearance_id', ForeignKey('appearances.id'), primary_key=True),
+          Column('appearance_label_id', ForeignKey('appearance_label.id'), primary_key=True))
 
 
 class Appearance(Base):
@@ -54,11 +71,11 @@ class Appearance(Base):
     id = Column(Integer, Sequence('appearance_id_seq'), primary_key=True)
     frame_id = Column(Integer, ForeignKey('frames.id'), nullable=False)
     frame = relationship('Frame')
+    appearance_labels = relationship('AppearanceLabel', secondary=appearance_label_link)
     bbox_xmin = Column(Float)
     bbox_xmax = Column(Float)
     bbox_ymin = Column(Float)
     bbox_ymax = Column(Float)
-    label_id = Column(Integer, ForeignKey('labels.id'))
     creator_id = Column(Integer, ForeignKey('creators.id'))
 
 ################################################################################
