@@ -11,6 +11,7 @@ from contextlib import contextmanager
 from psycopg2.extras import execute_values
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 import logging
+from collections import namedtuple
 
 from . import models
 from . models import Base, FramesQuery
@@ -67,19 +68,71 @@ def manage_migrate_labels():
     pop_labels()
 
 
+SqlExpr = namedtuple('SqlExpr', ['from_expr', 'where_clauses'])
+
+
+def sql_expr(frames_query):
+    if frames_query.collection_id is not None:
+        from_expr = '''
+        eco.frames f
+        inner join eco.collection_frame cf
+            on cf.frame_id = f.id
+            and cf.collection_id = %(collection_id)s
+        '''
+    else:
+        from_expr = '''
+        eco.frames f
+        '''
+
+    if frames_query.tbegin is not None and frames_query.tend is not None:
+        where_clauses = [
+            '%(tbegin)s <= "timestamp"',
+            '"timestamp" < %(tend)s'
+        ]
+    else:
+        where_clauses = []
+    return SqlExpr(from_expr, where_clauses)
+
+
+def sqlify_where(where_clauses):
+    if len(where_clauses) == 0:
+        return ''
+    else:
+        s = ' and '.join(f'({wc})' for wc in where_clauses)
+        return f'where {s}'
+
+
+def sqlify_sql_expr(sql_expr):
+    where_sql = sqlify_where(sql_expr.where_clauses)
+    s = f'{sql_expr.from_expr} {where_sql}'
+    return s
+
+
+def frames_query_dict(frames_query):
+    d = {}
+    if frames_query.tbegin is not None:
+        d['tbegin'] = frames_query.tbegin
+
+    if frames_query.tend is not None:
+        d['tend'] = frames_query.tend
+
+    if frames_query.collection_id is not None:
+        d['collection_id'] = frames_query.collection_id
+
+    return d
+
+
 def fetch_frame_ids(session, frames_query, pagination=None):
-    q_unpaged = '''
+    q = f'''
     select
-        id
+        f.id
     from
-    eco.frames
-    where
-        %(tbegin)s <= "timestamp"
-        and "timestamp" < %(tend)s
+    {sqlify_sql_expr(sql_expr(frames_query))}
     order by "timestamp" asc
     '''
+    print(q)
     cursor = get_cursor(session)
-    cursor.execute(q_unpaged, {'tbegin': frames_query.tbegin, 'tend': frames_query.tend})
+    cursor.execute(q, frames_query_dict(frames_query))
     rows = cursor.fetchall()
     ids_ = [r[0] for r in rows]
     return ids_
@@ -91,18 +144,15 @@ def fetch_frame_ids_subsample(session, frames_query, nframes):
         frames_query (FramesQuery):
     '''
 
-    q = '''
+    q = f'''
     with
 
     bounds as (
         select
-            min(timestamp),
-            max(timestamp)
+            min(f."timestamp"),
+            max(f."timestamp")
         from
-        eco.frames
-        where
-            %(tbegin)s <= "timestamp"
-            and "timestamp" < %(tend)s
+        {sqlify_sql_expr(sql_expr(frames_query))}
     ),
 
     ages as (
@@ -110,10 +160,7 @@ def fetch_frame_ids_subsample(session, frames_query, nframes):
             id,
             extract(epoch from age("timestamp", (select "min" from bounds limit 1))) age
         from
-        eco.frames
-        where
-            %(tbegin)s <= "timestamp"
-            and "timestamp" < %(tend)s
+        {sqlify_sql_expr(sql_expr(frames_query))}
         order by "timestamp" asc
     ),
 
@@ -137,14 +184,11 @@ def fetch_frame_ids_subsample(session, frames_query, nframes):
     rows = cursor.fetchall()
     ids_ = [r[0] for r in rows]
 
-    q2 = '''
+    q2 = f'''
         select
             count(*)
         from
-        eco.frames
-        where
-            %(tbegin)s <= "timestamp"
-            and "timestamp" < %(tend)s
+        {sqlify_sql_expr(sql_expr(frames_query))}
     '''
     cursor.execute(q2, {'tbegin': frames_query.tbegin, 'tend': frames_query.tend})
     count = cursor.fetchall()[0][0]
@@ -181,14 +225,14 @@ def test():
     with session_scope() as session:
         tbegin = datetime.datetime(2019, 11, 1)
         tend = datetime.datetime(2019, 11, 16)
-        frames_query = FramesQuery(tbegin, tend)
+        frames_query = FramesQuery(tbegin, tend, None)
 
         coll = models.Collection(name='foo')
         session.add(coll)
         session.flush()
 
-        # collection_add_frames_via_query(session, coll.id, frames_query, nframes=100)
-        collection_add_frames_via_query(session, coll.id, frames_query)
+        collection_add_frames_via_query(session, coll.id, frames_query, nframes=100)
+        # collection_add_frames_via_query(session, coll.id, frames_query)
         print(f'collection id: {coll.id}')
 
 
@@ -196,5 +240,6 @@ def test2():
     with session_scope() as session:
         tbegin = datetime.datetime(2019, 11, 1)
         tend = datetime.datetime(2019, 11, 16)
-        frames_query = FramesQuery(tbegin, tend)
+        frames_query = FramesQuery(tbegin, tend, None)
+        return frames_query
         collection_remove_frames_via_query(session, 23, frames_query)
