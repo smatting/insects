@@ -2,6 +2,7 @@ import datetime
 import re
 import math
 import os
+import json
 import datetime
 import psycopg2
 from sqlalchemy import create_engine
@@ -10,8 +11,8 @@ from contextlib import contextmanager
 from psycopg2.extras import execute_values
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
-from . models import Base
 from . import models
+from . models import Base
 from . utils import to_dict
 
 ECODB = os.environ['ECODB']
@@ -19,6 +20,10 @@ engine = create_engine(ECODB, echo=True)
 # session class
 Session = sessionmaker(bind=engine)
 
+
+def load_json(file):
+    with open(file, 'r') as f:
+        return json.load(f)
 
 
 @contextmanager
@@ -39,16 +44,12 @@ def get_cursor(session):
     return session.connection().connection.cursor()
 
 
-def manage_labels():
-    wanted_labels = [
-        'Heimchen (acheta domesticus)',
-        'Wanderheuschrecke (locusta migratoria)',
-        'Wüstenheuschrecke (schistocerca gregaria)',
-    ]
+def pop_labels():
+    labels = load_json('backend/data/labels.json')
     with session_scope() as session:
         session.query(models.Label).delete()
-        for name in wanted_labels:
-            label = models.Label(name=name)
+        for l in labels:
+            label = models.Label(**l)
             session.add(label)
 
 
@@ -56,9 +57,12 @@ def manage_create_all():
     Base.metadata.create_all(engine)
 
 
-def manage_migrate():
-    models.Appearance.__table__.drop(engine)
-    Base.metadata.create_all(engine)
+def manage_migrate_labels():
+    # models.AppearanceLabel.__table__.drop(engine)
+    # models.Label.__table__.drop(engine)
+    # models.Appearance.__table__.drop(engine)
+    # Base.metadata.create_all(engine)
+    pop_labels()
 
 
 # def get_frames_continuous(tbegin, tend, after, nframes=10):

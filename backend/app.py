@@ -5,10 +5,15 @@ import json
 import numpy as np
 from . import db
 from . import models
-from .utils import to_dict
+
+from .utils import snakeize_dict_keys, camelize_dict_keys, to_dict
 
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import DeclarativeMeta
+
+
+def id_to_str(obj):
+    return {**obj, 'id': str(obj['id'])}
 
 
 # credit: https://stackoverflow.com/questions/44146087/pass-user-built-json-encoder-into-flasks-jsonify
@@ -94,10 +99,48 @@ def test():
         # return [to_dict(label) for label in labels]
 
 
+def _get_all(model):
+    with db.session_scope() as session:
+        objs = session.query(model).all()
+        objs = [id_to_str(to_dict(o)) for o in objs]
+    return objs
+
+
+def load_collection(collection_id):
+    with db.session_scope() as session:
+        coll = session.query(models.Collection).get(collection_id)
+        frames = coll.frames
+        coll = {'id': coll.id, 'frames': [id_to_str(to_dict(f)) for f in frames]}
+    emit('action', {"type": 'COLLECTION_LOADED', 'collection': coll})
+
+
+def delete_appearance():
+    #TODO
+    pass
+    # emit('action', {"type": 'APPEARANCE_DELETED', 'collection': coll})
+
+
+def add_appearance(frameId, appearance):
+    with db.session_scope() as session:
+        frame = session.query(models.Frame).get(frameId)
+        print(appearance)
+        app = models.Appearance(frame=frame, **snakeize_dict_keys(appearance))
+        session.add(app)
+        session.commit()
+        app_dict = camelize_dict_keys(id_to_str(to_dict(app)))
+    emit('action', {
+        "type": 'APPEARANCE_ADDED',
+        'appearance': app_dict,
+        'frameId': frameId
+    })
+
 
 @socketio.on('connect')
 def handle_connection():
-    emit('action', {"type": 'SERVER_INIT'})
+    species = _get_all(models.Label)
+    collections = _get_all(models.Collection)
+    emit('action', {"type": 'SERVER_INIT', 'species': species, 'collections': collections})
+    # load_collection(7)
 
 
 def update_search(action):
@@ -119,6 +162,14 @@ def handle_actions(action):
     print(action)
     if action['type'] == "SEARCH_UPDATE":
         update_search(action)
+    if action['type'] == "APPEARANCE_ADD":
+        print('APPEARANCE_ADD', action)
+        add_appearance(action['frameId'], action['appearance'])
+    if action['type'] == "APPEARANCE_DELETE":
+        print('APPEARANCE_ADD', action)
+    if action['type'] == "COLLECTIONFRAME_SELECT":
+        print('COLLECTIONFRAME_SELECT', action)
+
 
 
 def debug():
