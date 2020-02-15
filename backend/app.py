@@ -12,8 +12,34 @@ from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
-def id_to_str(obj):
-    return {**obj, 'id': str(obj['id'])}
+def to_dict(obj, rels=[], backref=None):
+    '''
+    Turn models to dicts. Nested relationships listed in `rels` are turned to dicts too,
+    otherwise they are missing. Hacky, barely tested.
+
+    From https://mmas.github.io/sqlalchemy-serialize-json
+    '''
+    res = {column.key: getattr(obj, attr)
+           for attr, column in obj.__mapper__.c.items()}
+    if len(rels) > 0:
+        for attr, relation in obj.__mapper__.relationships.items():
+            if attr not in rels:
+                continue
+
+            if hasattr(relation, 'table'):
+                if backref == relation.table:
+                    continue
+
+            value = getattr(obj, attr)
+            if value is None:
+                res[relation.key] = None
+            elif isinstance(value.__class__, DeclarativeMeta):
+                res[relation.key] = to_dict(value, backref=obj.__table__, rels=rels)
+            else:
+                res[relation.key] = [to_dict(i, backref=obj.__table__, rels=rels)
+                                     for i in value]
+    return res
+
 
 
 # credit: https://stackoverflow.com/questions/44146087/pass-user-built-json-encoder-into-flasks-jsonify
@@ -102,16 +128,27 @@ def test():
 def _get_all(model):
     with db.session_scope() as session:
         objs = session.query(model).all()
-        objs = [id_to_str(to_dict(o)) for o in objs]
+        objs = [to_dict(o) for o in objs]
     return objs
+
+
+def _get_by_id(model, id):
+    with db.session_scope() as session:
+        obj = session.query(model).get(int(id))
+        obj = to_dict(obj)
+    return obj
+
+def emit_one(action_name, payload):
+    payload = camelize_dict_keys(payload)
+    emit('action', {"type": action_name, **payload})
 
 
 def load_collection(collection_id):
     with db.session_scope() as session:
         coll = session.query(models.Collection).get(collection_id)
         frames = coll.frames
-        coll = {'id': coll.id, 'frames': [id_to_str(to_dict(f)) for f in frames]}
-    emit('action', {"type": 'COLLECTION_LOADED', 'collection': coll})
+        coll = {'id': coll.id, 'frames': [to_dict(f) for f in frames]}
+    emit_one('COLLECTION_LOADED', {'collection': coll})
 
 
 def delete_appearance():
@@ -120,28 +157,27 @@ def delete_appearance():
     # emit('action', {"type": 'APPEARANCE_DELETED', 'collection': coll})
 
 
-def add_appearance(frameId, appearance):
+def add_appearance(*, frame_id, appearance, label_ids, **_):
     with db.session_scope() as session:
-        frame = session.query(models.Frame).get(frameId)
-        print(appearance)
-        app = models.Appearance(frame=frame, **snakeize_dict_keys(appearance))
+        frame = session.query(models.Frame).get(frame_id)
+        labels = session.query(models.Label).filter(models.Label.id.in_(label_ids)).all()
+        print('appearance', appearance)
+        app = models.Appearance(frame=frame, **appearance)
         session.add(app)
+        for label in labels:
+            appLabel = models.AppearanceLabel(appearance=app, label=label)
+            session.add(appLabel)
         session.commit()
-        app_dict = camelize_dict_keys(id_to_str(to_dict(app)))
-    emit('action', {
-        "type": 'APPEARANCE_ADDED',
-        'appearance': app_dict,
-        'frameId': frameId
-    })
+        app_dict = to_dict(app, rels=['appearance_labels'])
+    emit_one('APPEARANCE_ADDED', {'appearance': app_dict})
 
 
 @socketio.on('connect')
 def handle_connection():
-    pass
-    # species = _get_all(models.Label)
-    # collections = _get_all(models.Collection)
-    # emit('action', {"type": 'SERVER_INIT', 'species': species, 'collections': collections})
-
+    labels = _get_all(models.Label)
+    collections = _get_all(models.Collection)
+    frames = [_get_by_id(models.Frame, 123124)]
+    emit_one('SERVER_INIT', {'labels': labels, 'collections': collections, 'frames': frames})
     # load_collection(7)
 
 
@@ -162,16 +198,15 @@ def update_search(action):
 @socketio.on('action')
 def handle_actions(action):
     print(action)
+    s_action = snakeize_dict_keys(action)
     if action['type'] == "SEARCH_UPDATE":
         update_search(action)
     if action['type'] == "APPEARANCE_ADD":
-        print('APPEARANCE_ADD', action)
-        add_appearance(action['frameId'], action['appearance'])
+        add_appearance(**s_action)
     if action['type'] == "APPEARANCE_DELETE":
-        print('APPEARANCE_ADD', action)
+        pass
     if action['type'] == "COLLECTIONFRAME_SELECT":
-        print('COLLECTIONFRAME_SELECT', action)
-
+        pass
 
 
 def debug():

@@ -6,6 +6,15 @@ const view = createReducer("FRAME", {
   VIEW_UPDATE: (state, action) => action.view
 });
 
+const ui = createReducer(
+  { activeFrame: null, activeCollection: null },
+  {
+    SERVER_INIT: (state, action) => ({
+      activeFrame: action.frames[0].id
+    })
+  }
+);
+
 const liveImage = createReducer(null, {
   LIVEIMAGE_NEW: (state, action) => action.liveImage
 });
@@ -16,15 +25,18 @@ const key = list => ({
 });
 
 const collection = createReducer(
-  { frames: key([]), currentFrameId: null },
+  { currentFrameId: null },
   {
     COLLECTION_LOADED: (state, action) => ({
       id: action.collection.id,
-      frames: key(action.collection.frames),
       currentFrameId: action.collection.frames[0].id
     })
   }
 );
+
+const frames = createReducer(key([]), {
+  SERVER_INIT: (state, action) => key(action.frames)
+});
 
 const appearances = createReducer(key([]), {
   APPEARANCE_ADDED: (state, action) => ({
@@ -33,8 +45,8 @@ const appearances = createReducer(key([]), {
   })
 });
 
-const species = createReducer(key([]), {
-  SERVER_INIT: (state, action) => key(action.species)
+const labels = createReducer(key([]), {
+  SERVER_INIT: (state, action) => key(action.labels)
 });
 
 const defaultSearch = {
@@ -55,12 +67,14 @@ const searchResults = createReducer(
 
 const reducers = combineReducers({
   view,
+  ui,
   search,
   searchResults,
   liveImage,
+  frames,
   appearances,
   collection,
-  species
+  labels
 });
 
 export default reducers;

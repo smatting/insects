@@ -49,8 +49,8 @@ class Frame(Base):
 collection_frame = \
     Table('collection_frame',
           Base.metadata,
-          Column('collection_id', ForeignKey('collections.id'), primary_key=True),
-          Column('frame_id', ForeignKey('frames.id'), primary_key=True))
+          Column('collection_id', ForeignKey('collections.id', ondelete='CASCADE'), primary_key=True),
+          Column('frame_id', ForeignKey('frames.id', ondelete='CASCADE'), primary_key=True))
 
 
 class Collection(Base):
@@ -84,16 +84,20 @@ class Label(Base):
 class AppearanceLabel(Base):
     __tablename__ = 'appearance_label'
     id = Column(Integer, Sequence('appearance_label_id_seq'), primary_key=True)
+    creator = relationship('Creator', backref='appearance_labels')
+    label = relationship('Label', backref='appearance_labels')
+    appearance = relationship('Appearance', backref='appearance_labels')
+    appearance_id = Column(Integer, ForeignKey('appearances.id'))
     creator_id = Column(Integer, ForeignKey('creators.id'))
     label_id = Column(Integer, ForeignKey('labels.id'))
     date_created = Column(DateTime, default=datetime.datetime.utcnow)
 
 
-appearance_label_link = \
-    Table('appearance_label_link',
-          Base.metadata,
-          Column('appearance_id', ForeignKey('appearances.id'), primary_key=True),
-          Column('appearance_label_id', ForeignKey('appearance_label.id'), primary_key=True))
+# appearance_label_link = \
+#     Table('appearance_label_link',
+#           Base.metadata,
+#           Column('appearance_id', ForeignKey('appearances.id'), primary_key=True),
+#           Column('appearance_label_id', ForeignKey('appearance_label.id'), primary_key=True))
 
 
 class Appearance(Base):
@@ -101,7 +105,6 @@ class Appearance(Base):
     id = Column(Integer, Sequence('appearance_id_seq'), primary_key=True)
     frame_id = Column(Integer, ForeignKey('frames.id'), nullable=False)
     frame = relationship('Frame')
-    appearance_labels = relationship('AppearanceLabel', secondary=appearance_label_link)
     bbox_xmin = Column(Float)
     bbox_xmax = Column(Float)
     bbox_ymin = Column(Float)

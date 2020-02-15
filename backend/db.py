@@ -47,25 +47,38 @@ def get_cursor(session):
     return session.connection().connection.cursor()
 
 
-def pop_labels():
-    labels = load_json('backend/data/labels.json')
+def repop_model(filename, model):
+    objs = load_json(filename)
     with session_scope() as session:
-        session.query(models.Label).delete()
-        for l in labels:
-            label = models.Label(**l)
-            session.add(label)
+        session.query(model).delete()
+        for o in objs:
+            session.add(model(**o))
+
+
+def manage_recreate():
+    del_models = [
+        models.Label,
+        models.AppearanceLabel,
+        models.Creator,
+        models.Collection
+    ]
+    with session_scope() as session:
+        try:
+            for model in del_models:
+                session.query(model).delete()
+        except:
+            pass
+    manage_create_all()
+    manage_repop()
 
 
 def manage_create_all():
     Base.metadata.create_all(engine)
 
 
-def manage_migrate_labels():
-    # models.AppearanceLabel.__table__.drop(engine)
-    # models.Label.__table__.drop(engine)
-    # models.Appearance.__table__.drop(engine)
-    # Base.metadata.create_all(engine)
-    pop_labels()
+def manage_repop():
+    repop_model('backend/data/labels.json', models.Label)
+    repop_model('backend/data/creators.json', models.Creator)
 
 
 SqlExpr = namedtuple('SqlExpr', ['from_expr', 'where_clauses'])

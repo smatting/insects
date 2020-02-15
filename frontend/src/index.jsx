@@ -25,7 +25,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 
 import Browser from "./container/Browser";
-import Frame from "./container/Frame";
+import Frame from "./container/frame/Frame";
 import LiveView from "./container/LiveView";
 import Dataset from "./container/Dataset";
 

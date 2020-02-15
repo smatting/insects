@@ -22,20 +22,22 @@ export const deleteAppearance = appearanceId => {
   };
 };
 
-export const addAppearance = ({ frameId, appearance }) => {
+export const addAppearance = ({ frameId, appearance, labelIds }) => {
   return {
     type: "APPEARANCE_ADD",
     frameId,
     appearance,
+    labelIds,
     server: true
   };
 };
 
-export const selectCollectionFrame = (collectionId, frameIdx) => {
+export const changeFrame = (collectionId, frameId, shift) => {
   return {
-    type: "COLLECTIONFRAME_SELECT",
+    type: "FRAME_CHANGE",
     collectionId,
     frameId,
+    shift,
     server: true
   };
 };
