@@ -1,12 +1,35 @@
+import re
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import (Table, ForeignKey, Column, String, Integer, Float, DateTime, Sequence)
 from sqlalchemy.orm import relationship
 import datetime
+from sqlalchemy.ext.hybrid import hybrid_property
+
 
 
 Base = declarative_base()
 
 Base.metadata.schema = 'eco'
+THUMB_HEIGHT = 200
+THUMB_WIDTH = int(1.3 * THUMB_HEIGHT)
+THUMB_PREFIX = f'http://195.201.97.57:5556/unsafe/{THUMB_WIDTH}x{THUMB_HEIGHT}/'
+
+
+def concat_paths(p1, p2):
+    if p1.endswith('/'):
+        p1 = p1[:-1]
+    if p2.startswith('/'):
+        p2 = p1[1:]
+    return f'{p1}/{p2}'
+
+
+def get_thumbnail(url):
+    m = re.match('http(s)://(.+)', url)
+    if m is None:
+        return None
+    _, x = m.groups()
+    thumbnail = concat_paths(THUMB_PREFIX, x)
+    return thumbnail
 
 
 class Frame(Base):
@@ -14,6 +37,10 @@ class Frame(Base):
     id = Column(Integer, Sequence('frame_id_seq'), primary_key=True)
     timestamp = Column(DateTime)
     url = Column(String)
+
+    @hybrid_property
+    def thumbnail(self):
+        return get_thumbnail(self.url)
 
 
 collection_frame = \

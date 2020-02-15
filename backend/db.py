@@ -1,25 +1,24 @@
 import datetime
 import re
+import math
 import os
 import datetime
 import psycopg2
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
-from .models import Base
-from . import models
 from psycopg2.extras import execute_values
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
+from . models import Base
+from . import models
+from . utils import to_dict
 
 ECODB = os.environ['ECODB']
 engine = create_engine(ECODB, echo=True)
 # session class
 Session = sessionmaker(bind=engine)
 
-
-THUMB_HEIGHT = 200
-THUMB_WIDTH = int(1.3 * THUMB_HEIGHT)
-THUMB_PREFIX = f'http://195.201.97.57:5556/unsafe/{THUMB_WIDTH}x{THUMB_HEIGHT}/'
 
 
 @contextmanager
@@ -42,7 +41,7 @@ def get_cursor(session):
 
 def manage_labels():
     wanted_labels = [
-        'Heimchen (schistocerca gregaria)',
+        'Heimchen (acheta domesticus)',
         'Wanderheuschrecke (locusta migratoria)',
         'Wüstenheuschrecke (schistocerca gregaria)',
     ]
@@ -60,43 +59,6 @@ def manage_create_all():
 def manage_migrate():
     models.Appearance.__table__.drop(engine)
     Base.metadata.create_all(engine)
-
-
-def equidx(n, k):
-    '''
-    Return a equispaced subsample from [1...n] of size k
-    '''
-    if k <= 0:
-        return []
-    delta = n / k
-    if delta <= 1.0:
-        return range(1, n)
-    return [int(delta * i) for i in range(1, k + 1)]
-
-
-def concat_paths(p1, p2):
-    if p1.endswith('/'):
-        p1 = p1[:-1]
-    if p2.startswith('/'):
-        p2 = p1[1:]
-    return f'{p1}/{p2}'
-
-
-def get_thumbnail(url):
-    m = re.match('http(s)://(.+)', url)
-    if m is None:
-        return None
-    _, x = m.groups()
-    thumbnail = concat_paths(THUMB_PREFIX, x)
-    return thumbnail
-
-
-def make_frame(id_, timestamp, url):
-    # thumbnail = get_thumbnail(url)
-    # frame = models.Frame(id=id_, url=url, timestamp=timestamp, thumbnail=thumbnail)
-    thumbnail = get_thumbnail(url)
-    frame = {'id': id_, 'timestamp': timestamp, 'url': url, 'thumbnail': thumbnail}
-    return frame
 
 
 # def get_frames_continuous(tbegin, tend, after, nframes=10):
@@ -123,63 +85,78 @@ def make_frame(id_, timestamp, url):
 #     return len(frames), frames
 
 
-def frames_fetch_sub(session, tbegin, tend, sub_fun):
-    cursor = get_cursor(session)
-
+def fetch_frames_subsample(session, tbegin, tend, n):
     q = '''
-    select
-        count(*)
-    from
-        eco.frames
-    where
-        %s <= timestamp
-        and timestamp < %s
-    '''
-    cursor.execute(q, (tbegin, tend))
-    (n, ) = cursor.fetchone()
-    if n <= 0:
-        return (0, [])
+    with
 
-    idxs = tuple(sub_fun(n))
-    if len(idxs) == 0:
-        return []
+    bounds as (
+        select
+            min(timestamp),
+            max(timestamp)
+        from
+        eco.frames
+        where
+            %(tbegin)s <= "timestamp"
+            and "timestamp" < %(tend)s
+    ),
+
+    ages as (
+        select
+            id,
+            extract(epoch from age("timestamp", (select "min" from bounds limit 1))) age
+        from
+        eco.frames
+        where
+            %(tbegin)s <= "timestamp"
+            and "timestamp" < %(tend)s
+        order by "timestamp" asc
+    ),
+
+    cmps as (
+        select
+            id,
+            floor(%(n)s * age / (select max(age) from ages))::int as n,
+            lag(floor(%(n)s * age / (select max(age) from ages))::int) over () as n_lag
+        from
+            ages
+    )
+
+    select
+        *
+    from cmps
+    where n != n_lag
+        or n_lag is null
+    '''
+    cursor = get_cursor(session)
+    cursor.execute(q, {'tbegin': tbegin, 'tend': tend, 'n': n})
+    rows = cursor.fetchall()
+    ids_ = [r[0] for r in rows]
 
     q2 = '''
-    select
-        x.id,
-        x.timestamp,
-        x.url
-    from (
         select
-            *,
-            row_number() over (order by timestamp asc, url asc) as idx
+            count(*)
         from
-            eco.frames
+        eco.frames
         where
-            %s <= timestamp
-            and timestamp < %s
-    ) x
-        where x.idx in %s
+            %(tbegin)s <= "timestamp"
+            and "timestamp" < %(tend)s
     '''
-    cursor.execute(q2, (tbegin, tend, idxs))
+    cursor.execute(q2, {'tbegin': tbegin, 'tend': tend})
+    count = cursor.fetchall()[0][0]
 
-    rows = cursor.fetchall()
-
-    frames = []
-    for (id_, timestamp, url) in rows:
-        frame = make_frame(id_, timestamp, url)
-        frames.append(frame)
-
-    return n, frames
+    return count, ids_
 
 
 def get_frames_subsample(session, tbegin, tend, nframes=10):
-    return frames_fetch_sub(session, tbegin, tend, lambda n: equidx(n, nframes))
+    count, ids = fetch_frames_subsample(session, tbegin, tend, n=nframes)
+    frames = session.query(models.Frame).filter(models.Frame.id.in_(ids)).all()
+    return count, frames
 
 
-def collection_add_frames_subsample(session, collection_id, tbegin, tend, nframes=10):
-    n, frames = frames_fetch_sub(session, tbegin, tend, lambda n: equidx(n, nframes))
-    data = [(collection_id, frame['id']) for frame in frames]
-    q = 'insert into eco.collection_frame (collection_id, frame_id) values %s'
-    cursor = get_cursor(session)
-    execute_values(cursor, q, data, page_size=100)
+def test():
+    with session_scope() as session:
+        tbegin = datetime.datetime(2019, 11, 1)
+        tend = datetime.datetime(2019, 11, 15)
+        cnt, frames = get_frames_subsample(session, tbegin, tend, nframes=10)
+        for frame in frames:
+            return to_dict(frame)

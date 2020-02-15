@@ -5,39 +5,10 @@ import json
 import numpy as np
 from . import db
 from . import models
+from .utils import to_dict
 
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import DeclarativeMeta
-
-
-def to_dict(obj, rels=[], backref=None):
-    '''
-    Turn models to dicts. Nested relationships listed in `rels` are turned to dicts too,
-    otherwise they are missing. Hacky, barely tested.
-
-    From https://mmas.github.io/sqlalchemy-serialize-json
-    '''
-    res = {column.key: getattr(obj, attr)
-           for attr, column in obj.__mapper__.c.items()}
-    if len(rels) > 0:
-        for attr, relation in obj.__mapper__.relationships.items():
-            if attr not in rels:
-                continue
-
-            if hasattr(relation, 'table'):
-                if backref == relation.table:
-                    continue
-
-            value = getattr(obj, attr)
-            if value is None:
-                res[relation.key] = None
-            elif isinstance(value.__class__, DeclarativeMeta):
-                res[relation.key] = to_dict(value, backref=obj.__table__, rels=rels)
-            else:
-                res[relation.key] = [to_dict(i, backref=obj.__table__, rels=rels)
-                                     for i in value]
-    return res
-
 
 
 # credit: https://stackoverflow.com/questions/44146087/pass-user-built-json-encoder-into-flasks-jsonify
@@ -133,9 +104,14 @@ def update_search(action):
     search = action['search']
     with db.session_scope() as session:
         ntotal, frames = db.get_frames_subsample(session, tbegin=search['startDate'], tend=search['endDate'], nframes=10)
-    search_results = {'ntotal': ntotal, 'frames': frames}
-    print(search_results)
-    emit('action', {"type": 'SEARCH_UPDATED', 'searchResults': search_results})
+        search_results = {'ntotal': ntotal, 'frames': [to_dict(frame) for frame in frames]}
+
+        # print(f'ntotal: {ntotal}')
+        print(f'ntotal: {ntotal}')
+        print(f'len(frames): {len(search_results["frames"])}')
+
+        # print(search_results)
+        emit('action', {"type": 'SEARCH_UPDATED', 'searchResults': search_results})
 
 
 @socketio.on('action')

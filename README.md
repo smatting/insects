@@ -280,3 +280,34 @@ https://observablehq.com/@d3/scale-ticks
 2020-01-15  Wanderheuschrecken
 2020-01-16  Wuestenheuschrecken
 
+
+# 2020-02-15
+
+# Data Browser
+
+## right side bar (toggleable): datasets
+- bottom: create new data set (empty)
+- delete dataset / rename dataset
+- download link
+- "all" oder collection auswählen -> bestimmt kontext in dem man sucht
+
+## search
+- continuous / subsample view
+- tag filter
+
+## search results
+- zoom by ratio
+- evenly spaced
+- show results in view
+- add to collection -> to which one?, subsample / continuous?
+
+
+# Frame
+- multiple labels
+- a label has a "level" in the taxonomy (species, family, etc.)
+- bounding boxes editable
+- prev / next buttons only when context is collection
+
+# User oben rechts
+
+
