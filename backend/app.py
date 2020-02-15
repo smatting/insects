@@ -128,6 +128,13 @@ def test():
         # return [to_dict(label) for label in labels]
 
 
+def _get_all(model):
+    with db.session_scope() as session:
+        objs = session.query(model).all()
+        objs = [id_to_str(to_dict(o)) for o in objs]
+    return objs
+
+
 def load_collection(collection_id):
     with db.session_scope() as session:
         coll = session.query(models.Collection).get(collection_id)
@@ -159,17 +166,16 @@ def add_appearance(frameId, appearance):
 
 @socketio.on('connect')
 def handle_connection():
-    with db.session_scope() as session:
-        species = session.query(models.Label).all()
-        species = [id_to_str(to_dict(s)) for s in species]
-    emit('action', {"type": 'SERVER_INIT', 'species': species})
+    species = _get_all(models.Label)
+    collections = _get_all(models.Collection)
+    emit('action', {"type": 'SERVER_INIT', 'species': species, 'collections': collections})
     load_collection(7)
 
 
 def update_search(action):
     search = action['search']
     with db.session_scope() as session:
-        ntotal, frames = db.get_frames_subsample(session, tbegin=search['startDate'], tend=search['endDate'], nframes=50)
+        ntotal, frames = db.get_frames_subsample(session, tbegin=search['startDate'], tend=search['endDate'], nframes=10)
     search_results = {'ntotal': ntotal, 'frames': frames}
     emit('action', {"type": 'SEARCH_UPDATED', 'searchResults': search_results})
 
