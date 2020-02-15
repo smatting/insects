@@ -34,4 +34,5 @@ in python.withPackages(ps: with ps;
   django-filter
   sqlalchemy
   numpy
+  requests
 ])).env

@@ -137,9 +137,11 @@ def add_appearance(frameId, appearance):
 
 @socketio.on('connect')
 def handle_connection():
-    species = _get_all(models.Label)
-    collections = _get_all(models.Collection)
-    emit('action', {"type": 'SERVER_INIT', 'species': species, 'collections': collections})
+    pass
+    # species = _get_all(models.Label)
+    # collections = _get_all(models.Collection)
+    # emit('action', {"type": 'SERVER_INIT', 'species': species, 'collections': collections})
+
     # load_collection(7)
 
 
