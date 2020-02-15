@@ -69,6 +69,7 @@ def manage_migrate_labels():
 
 
 SqlExpr = namedtuple('SqlExpr', ['from_expr', 'where_clauses'])
+Pagination = namedtuple('Pagination', ['after_id', 'pagesize'])
 
 
 def sql_expr(frames_query):
@@ -109,6 +110,9 @@ def sqlify_sql_expr(sql_expr):
 
 
 def frames_query_dict(frames_query):
+    '''
+    Arguments for the query returned by sqlify_sql_expr()
+    '''
     d = {}
     if frames_query.tbegin is not None:
         d['tbegin'] = frames_query.tbegin
@@ -123,16 +127,39 @@ def frames_query_dict(frames_query):
 
 
 def fetch_frame_ids(session, frames_query, pagination=None):
-    q = f'''
-    select
-        f.id
-    from
-    {sqlify_sql_expr(sql_expr(frames_query))}
-    order by "timestamp" asc
-    '''
-    print(q)
     cursor = get_cursor(session)
-    cursor.execute(q, frames_query_dict(frames_query))
+
+    if pagination is None:
+        q_unpaged = f'''
+        select
+            f.id
+        from
+        {sqlify_sql_expr(sql_expr(frames_query))}
+        order by f."timestamp" asc
+        '''
+        print(q)
+        cursor.execute(q_unpaged, frames_query_dict(frames_query))
+    else:
+        expr = sql_expr(frames_query)
+        d = frames_query_dict(frames_query)
+        d['pagesize'] = pagination.pagesize
+        if pagination.after_id is not None:
+            expr = SqlExpr(expr.from_expr,
+                           expr.where_clauses +\
+                           ['f."timestamp" > (select "timestamp" from eco.frames ff where ff.id = %(after_id)s limit 1)'])
+
+            d['after_id'] = pagination.after_id
+        q_paged = f'''
+        select
+            f.id
+        from
+        {sqlify_sql_expr(expr)}
+        order by f."timestamp" asc
+        limit %(pagesize)s
+        '''
+        cursor.execute(q_paged, d)
+        print(q_paged)
+
     rows = cursor.fetchall()
     ids_ = [r[0] for r in rows]
     return ids_
@@ -249,5 +276,8 @@ def test2():
 
 def test3():
     with session_scope() as session:
-        frames_query = FramesQuery(None, None, 27)
-        return fetch_frame_ids_subsample(session, frames_query, 10)
+        frames_query = FramesQuery(None, None, 28)
+        # pagination = None
+        # pagination = Pagination(after_id=78063, pagesize=6)
+        ids = fetch_frame_ids(session, frames_query, pagination)
+        print(f'n={len(ids)}: {ids[:10]}')
