@@ -39,7 +39,7 @@ const appearanceToAnnotation = (
   };
 };
 
-const renderHighlight = ({ key, annotation, active }) => {
+const renderHighlight = ({ key, annotation }) => {
   return (
     <React.Fragment key={"rectangle-fragment-" + key}>
       <div
@@ -55,7 +55,7 @@ const renderHighlight = ({ key, annotation, active }) => {
       <Rectangle
         key={"rectangle-" + key}
         annotation={annotation}
-        active={annotation.active}
+        active={annotation.data.active}
       />
     </React.Fragment>
   );

@@ -40,6 +40,11 @@ module.exports = {
         }
     },
 
+    // watchOptions: {
+    //     poll: 1000,
+    //     ignored: ["node_modules"]
+    // },
+
     mode: "development",
 
     // Enable sourcemaps for debugging webpack"s output.

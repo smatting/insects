@@ -1,18 +1,23 @@
-import BugReportOutlinedIcon from "@material-ui/icons/BugReportOutlined";
-
 import _ from "lodash";
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import Divider from "@material-ui/core/Divider";
-import ListItemText from "@material-ui/core/ListItemText";
-import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import Avatar from "@material-ui/core/Avatar";
+import BugReportOutlinedIcon from "@material-ui/icons/BugReportOutlined";
 import Typography from "@material-ui/core/Typography";
+
+import Collapse from "@material-ui/core/Collapse";
+import ExpandLess from "@material-ui/icons/ExpandLess";
+import ExpandMore from "@material-ui/icons/ExpandMore";
+import StarBorder from "@material-ui/icons/StarBorder";
+import ThumbUpIcon from "@material-ui/icons/ThumbUp";
+import ThumbDownIcon from "@material-ui/icons/ThumbDown";
+import DeleteIcon from "@material-ui/icons/Delete";
+import CloseIcon from "@material-ui/icons/Close";
+import IconButton from "@material-ui/core/IconButton";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -20,120 +25,127 @@ const useStyles = makeStyles(theme => ({
     maxWidth: 360,
     backgroundColor: theme.palette.background.paper
   },
-  inline: {
-    display: "inline"
+  nested: {
+    paddingLeft: theme.spacing(4)
+  },
+  voter: {
+    width: "30px",
+    minWidth: "30px"
   }
+  //   inline: {
+  //     display: "inline"
+  //   }
 }));
 
-const appearanceLabelStr = ({
-  name,
-  scientificName,
-  systematicLevel
-} = `${name} (${scientificName})`);
+const appearanceLabelStr = ({ name, scientificName, systematicLevel }) =>
+  `${name} (${scientificName})`;
 
-const Appearance = ({ appearance, labels }) => {
+const AppearanceLabelText = ({ label, classes }) => (
+  <ListItemText
+    primary={label.name}
+    secondary={
+      <React.Fragment>
+        <Typography
+          component="span"
+          variant="body2"
+          className={classes.inline}
+          color="textPrimary"
+        >
+          {label.scientificName}
+        </Typography>
+        {` — ${label.systematicLevel}`}
+      </React.Fragment>
+    }
+  />
+);
+
+const Appearance = ({
+  appearance,
+  labels,
+  classes,
+  active,
+  onChangeActive
+}) => {
   const appearanceLabels = appearance.appearanceLabels;
+  const [open, setOpen] = React.useState(false);
   return (
-    <ListItem alignItems="flex-start">
-      <ListItemIcon>
-        <BugReportOutlinedIcon />
-      </ListItemIcon>
-      <ListItemText
-        primary={appearanceLabelStr(labels.byKey[appearanceLabels[0].labelId])}
-        secondary={appearanceLabels.map(id =>
-          appearanceLabelStr(labels.byKey[id])
+    <>
+      <ListItem
+        alignItems="flex-start"
+        button
+        selected={active}
+        onClick={() => onChangeActive(appearance.id)}
+      >
+        <ListItemIcon>
+          <IconButton onClick={() => console.log("test")}>
+            <CloseIcon />
+          </IconButton>
+        </ListItemIcon>
+        <AppearanceLabelText
+          label={labels.byKey[appearanceLabels[0].labelId]}
+          classes={classes}
+        />
+        {open ? (
+          <ExpandLess onClick={() => setOpen(false)} />
+        ) : (
+          <ExpandMore onClick={() => setOpen(true)} />
         )}
-      />
-    </ListItem>
+      </ListItem>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <List component="div" disablePadding>
+          {appearanceLabels.map((al, idx) => (
+            <ListItem className={classes.nested} key={"sub-app-" + idx}>
+              <AppearanceLabelText
+                label={labels.byKey[al.labelId]}
+                classes={classes}
+              />
+              <ListItemIcon className={classes.voter}>
+                <ThumbUpIcon />
+              </ListItemIcon>
+              <ListItemIcon className={classes.voter}>
+                <ThumbDownIcon />
+              </ListItemIcon>
+            </ListItem>
+          ))}
+        </List>
+      </Collapse>
+    </>
   );
 };
 
 const intersperse = (elements, makeInter, makeElement) =>
-  flatMap(elements, (a, i) =>
-    i ? [makeInter(i), makeElement(a)] : [makeElement(a)]
+  _.flatMap(elements, (a, i) =>
+    i ? [makeInter(i), makeElement(a, i)] : [makeElement(a)]
   );
 
-// export default function AlignItemsList() {
-//   const classes = useStyles();
-// const inter = ();
-//   return (
-//     <List className={classes.root}>
-//     {/* {_.flatMap(arr, (a, i) => i ? [<Divider key={'divider-'+i} variant="inset" component="li" />, a] : [a]))} */}
+const AppearanceList = ({
+  appearances,
+  labels,
+  activeAppearance,
+  onChangeActive
+}) => {
+  const classes = useStyles();
+  console.log(activeAppearance);
+  return (
+    <List className={classes.root}>
+      {intersperse(
+        appearances.allIds.map(id => appearances.byKey[id]),
+        i => (
+          <Divider key={"divider-" + i} variant="inset" component="li" />
+        ),
+        (a, i) => (
+          <Appearance
+            key={"appearance-" + i}
+            active={activeAppearance == a.id}
+            appearance={a}
+            onChangeActive={onChangeActive}
+            labels={labels}
+            classes={classes}
+          />
+        )
+      )}
+    </List>
+  );
+};
 
-//     </List>
-//   );
-// }
-
-// import React from "react";
-// import { makeStyles } from "@material-ui/core/styles";
-// import { connect } from "react-redux";
-
-// import * as a from "../../actions";
-
-// import Annotation from "react-image-annotation";
-// import Rectangle from "../Rectangle";
-// import Radio from "@material-ui/core/Radio";
-// import RadioGroup from "@material-ui/core/RadioGroup";
-// import FormControlLabel from "@material-ui/core/FormControlLabel";
-// import FormControl from "@material-ui/core/FormControl";
-// import FormLabel from "@material-ui/core/FormLabel";
-// import Grid from "@material-ui/core/Grid";
-
-// import IconButton from "@material-ui/core/IconButton";
-
-// import LabelIcon from "@material-ui/icons/Label";
-// import DeleteIcon from "@material-ui/icons/Delete";
-// import NavigateNextIcon from "@material-ui/icons/NavigateNext";
-// import NavigateBeforeIcon from "@material-ui/icons/NavigateBefore";
-// import Table from "@material-ui/core/Table";
-// import TableBody from "@material-ui/core/TableBody";
-// import TableCell from "@material-ui/core/TableCell";
-// import TableContainer from "@material-ui/core/TableContainer";
-// import TableRow from "@material-ui/core/TableRow";
-// import Paper from "@material-ui/core/Paper";
-
-// import Card from "@material-ui/core/Card";
-// import CardHeader from "@material-ui/core/CardHeader";
-// import CardContent from "@material-ui/core/CardContent";
-
-// const LabelList = ({
-//   appearances,
-//   activeId,
-//   classes,
-//   onDelete,
-//   onActive,
-//   labels
-// }) => {
-//   return (
-//     <TableContainer component={Paper}>
-//       <Table
-//         className={classes.labelListTable}
-//         size="small"
-//         aria-label="a dense table"
-//       >
-//         <TableBody>
-//           {appearances.allIds.map(id => (
-//             <TableRow
-//               key={"label-" + id}
-//               selected={activeId == id}
-//               onMouseEnter={() => onActive(id)}
-//               onMouseLeave={() => onActive(null)}
-//             >
-//               <TableCell padding="checkbox">
-//                 <LabelIcon />
-//               </TableCell>
-//               <TableCell align="right">
-//                 {labels.byKey[appearances.byKey[id].labelId].name}
-//               </TableCell>
-//               <TableCell padding="checkbox">
-//                 <IconButton aria-label="delete" onClick={() => onDelete(id)}>
-//                   <DeleteIcon />
-//                 </IconButton>
-//               </TableCell>
-//             </TableRow>
-//           ))}
-//         </TableBody>
-//       </Table>
-//     </TableContainer>
-//   );
-// };
+export default AppearanceList;

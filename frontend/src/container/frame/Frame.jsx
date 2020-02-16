@@ -6,8 +6,12 @@ import * as a from "../../actions";
 
 import Grid from "@material-ui/core/Grid";
 
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Switch from "@material-ui/core/Switch";
+
 import ImageCard from "./ImageCard";
 import LabelList from "./LabelList";
+import AppearanceList from "./AppearanceList";
 
 import _ from "lodash";
 
@@ -34,7 +38,8 @@ const Frame = ({
 
   const classes = useStyles();
   const [activelabels, setActivelabels] = React.useState([labels.allIds[0]]);
-  const [activeAnnotation, setActiveAnnotation] = React.useState();
+  const [activeAppearance, setActiveAppearance] = React.useState();
+  const [editMode, setEditMode] = React.useState(false);
 
   //   const onChangeActive = id => {
   //     setActiveAnnotation(id);
@@ -64,7 +69,7 @@ const Frame = ({
           {...{
             activeCollection,
             activelabels,
-            activeAnnotation,
+            activeAnnotation: activeAppearance,
             onAddAppearance: appearance =>
               onAddAppearance(frame.id, appearance, activelabels),
             appearances,
@@ -82,14 +87,27 @@ const Frame = ({
           />
         </Grid>
         <Grid container item xs={12} spacing={1}>
-          {/* <LabelList
-            classes={classes}
+          <FormControlLabel
+            control={
+              <Switch
+                checked={editMode}
+                onChange={() => setEditMode(!editMode)}
+              />
+            }
+            label="Edit Mode"
+          />
+        </Grid>
+        <Grid container item xs={12} spacing={1}>
+          <AppearanceList
             appearances={appearances}
             labels={labels}
-            activeId={activeAnnotation}
-            onDelete={onDeleteAppearance}
-            onActive={onActive}
-          /> */}
+            activeAppearance={activeAppearance}
+            onChangeActive={id => setActiveAppearance(id)}
+            onDeleteAppearance={onDeleteAppearance}
+            // activeId={activeAnnotation}
+            // onDelete={onDeleteAppearance}
+            // onActive={onActive}
+          />
         </Grid>
       </Grid>
     </Grid>
