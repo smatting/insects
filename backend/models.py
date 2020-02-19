@@ -104,7 +104,7 @@ class Appearance(Base):
     __tablename__ = 'appearances'
     id = Column(Integer, Sequence('appearance_id_seq'), primary_key=True)
     frame_id = Column(Integer, ForeignKey('frames.id'), nullable=False)
-    frame = relationship('Frame')
+    frame = relationship('Frame', backref='appearances')
     bbox_xmin = Column(Float)
     bbox_xmax = Column(Float)
     bbox_ymin = Column(Float)

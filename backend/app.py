@@ -151,10 +151,15 @@ def load_collection(collection_id):
     emit_one('COLLECTION_LOADED', {'collection': coll})
 
 
-def delete_appearance():
-    #TODO
-    pass
-    # emit('action', {"type": 'APPEARANCE_DELETED', 'collection': coll})
+def delete_appearance(*, appearance_id, **_):
+    with db.session_scope() as session:
+        app = session.query(models.Appearance).get(appearance_id)
+        frame = app.frame
+        frame_id = frame.id
+        session.delete(app)
+        session.commit()
+        app_dicts = [to_dict(a, rels=['appearance_labels']) for a in frame.appearances]
+    emit_one('APPEARANCES_FLUSH', {'appearances': app_dicts, 'frameId': frame_id})
 
 
 def add_appearance(*, frame_id, appearance, label_ids, **_):
@@ -172,12 +177,21 @@ def add_appearance(*, frame_id, appearance, label_ids, **_):
     emit_one('APPEARANCE_ADDED', {'appearance': app_dict})
 
 
+def get_frame_appearances(*, frame_id, **_):
+    with db.session_scope() as session:
+        frame = session.query(models.Frame).get(frame_id)
+        apps = frame.appearances
+        app_dicts = [to_dict(a, rels=['appearance_labels']) for a in apps]
+    emit_one('APPEARANCES_FLUSH', {'appearances': app_dicts, 'frameId': frame_id})
+
+
 @socketio.on('connect')
 def handle_connection():
     labels = _get_all(models.Label)
     collections = _get_all(models.Collection)
     frames = [_get_by_id(models.Frame, 123124)]
     emit_one('SERVER_INIT', {'labels': labels, 'collections': collections, 'frames': frames})
+    get_frame_appearances(frame_id=123124)
     # load_collection(7)
 
 
@@ -204,7 +218,7 @@ def handle_actions(action):
     if action['type'] == "APPEARANCE_ADD":
         add_appearance(**s_action)
     if action['type'] == "APPEARANCE_DELETE":
-        pass
+        delete_appearance(**s_action)
     if action['type'] == "COLLECTIONFRAME_SELECT":
         pass
 

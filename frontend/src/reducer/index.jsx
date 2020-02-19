@@ -1,5 +1,5 @@
 import { combineReducers } from "redux";
-import { createReducer } from "redux-starter-kit";
+import { createReducer, findNonSerializableValue } from "redux-starter-kit";
 import _ from "lodash";
 
 const view = createReducer("FRAME", {
@@ -10,7 +10,8 @@ const ui = createReducer(
   { activeFrame: null, activeCollection: null },
   {
     SERVER_INIT: (state, action) => ({
-      activeFrame: action.frames[0].id
+      activeFrame: action.frames[0].id,
+      activeCollection: action.collections[0].id
     })
   }
 );
@@ -24,26 +25,38 @@ const key = list => ({
   allIds: _.map(list, ({ id }) => id)
 });
 
-const collection = createReducer(
-  { currentFrameId: null },
-  {
-    COLLECTION_LOADED: (state, action) => ({
-      id: action.collection.id,
-      currentFrameId: action.collection.frames[0].id
-    })
-  }
-);
+const collections = createReducer(key([]), {
+  SERVER_INIT: (state, action) => key(action.collections)
+});
+
+// const collection = createReducer(
+//   { currentFrameId: null },
+//   {
+//     COLLECTION_LOADED: (state, action) => ({
+//       id: action.collection.id,
+//       currentFrameId: action.collection.frames[0].id
+//     })
+//   }
+// );
 
 const frames = createReducer(key([]), {
   SERVER_INIT: (state, action) => key(action.frames)
 });
 
-const appearances = createReducer(key([]), {
-  APPEARANCE_ADDED: (state, action) => ({
-    byKey: { ...state.byKey, [action.appearance.id]: action.appearance },
-    allIds: [...state.allIds, action.appearance.id]
-  })
-});
+const appearances = createReducer(
+  { frameId: null, ...key([]) },
+  {
+    APPEARANCE_ADDED: (state, action) => ({
+      ...state,
+      byKey: { ...state.byKey, [action.appearance.id]: action.appearance },
+      allIds: [...state.allIds, action.appearance.id]
+    }),
+    APPEARANCES_FLUSH: (state, action) => ({
+      frameId: action.frameId,
+      ...key(action.appearances)
+    })
+  }
+);
 
 const labels = createReducer(key([]), {
   SERVER_INIT: (state, action) => key(action.labels)
@@ -73,7 +86,7 @@ const reducers = combineReducers({
   liveImage,
   frames,
   appearances,
-  collection,
+  collections,
   labels
 });
 

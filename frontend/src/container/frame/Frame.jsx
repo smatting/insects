@@ -25,8 +25,7 @@ const Frame = ({
   labels,
   frame,
   appearances,
-  activeCollection,
-  activeFrame,
+  collection,
   onChangeFrame,
   onAddAppearance,
   onDeleteAppearance
@@ -35,6 +34,8 @@ const Frame = ({
   if (!frame) {
     return null;
   }
+
+  console.log(collection);
 
   const classes = useStyles();
   const [activelabels, setActivelabels] = React.useState([labels.allIds[0]]);
@@ -64,29 +65,32 @@ const Frame = ({
 
   return (
     <Grid container justify="space-between" spacing={1} alignItems="flex-start">
-      <Grid container item xs={9} spacing={1}>
-        <ImageCard
-          {...{
-            activeCollection,
-            activelabels,
-            activeAnnotation: activeAppearance,
-            onAddAppearance: appearance =>
-              onAddAppearance(frame.id, appearance, activelabels),
-            appearances,
-            frame,
-            onChangeFrame
-          }}
-        />
+      <Grid container item xs={9} spacing={2}>
+        <Grid container item xs={12} spacing={0}>
+          <ImageCard
+            {...{
+              collection,
+              activelabels,
+              activeAnnotation: activeAppearance,
+              onAddAppearance: appearance =>
+                onAddAppearance(frame.id, appearance, activelabels),
+              appearances,
+              frame,
+              onChangeFrame: shift =>
+                onChangeFrame(collection.id, frame.id, shift)
+            }}
+          />
+        </Grid>
       </Grid>
-      <Grid container item xs={3} spacing={1}>
-        <Grid container item xs={12} spacing={1}>
+      <Grid container item xs={3} spacing={2}>
+        <Grid container item xs={12} spacing={0}>
           <LabelList
             handleToggle={handleToggleLabels}
             labels={labels}
             activelabels={activelabels}
           />
         </Grid>
-        <Grid container item xs={12} spacing={1}>
+        {/* <Grid container item xs={12} spacing={1}>
           <FormControlLabel
             control={
               <Switch
@@ -96,8 +100,8 @@ const Frame = ({
             }
             label="Edit Mode"
           />
-        </Grid>
-        <Grid container item xs={12} spacing={1}>
+        </Grid> */}
+        <Grid container item xs={12} spacing={0}>
           <AppearanceList
             appearances={appearances}
             labels={labels}
@@ -116,15 +120,14 @@ const Frame = ({
 
 export default connect(
   (state, ownProps) => ({
-    activeCollection: state.activeCollection,
-    activeFrame: state.activeFrame,
+    collection: state.collections.byKey[state.ui.activeCollection],
     frame: state.frames.byKey[state.ui.activeFrame],
     labels: state.labels,
     appearances: state.appearances
   }),
   (dispatch, ownProps) => ({
-    onChangeFrame: step =>
-      dispatch(a.changeFrame(state.activeCollection, state.activeFrame, step)),
+    onChangeFrame: (collectionId, frameId, shift) =>
+      dispatch(a.changeFrame(collectionId, frameId, shift)),
     onAddAppearance: (frameId, appearance, labelIds) =>
       dispatch(a.addAppearance({ frameId, appearance, labelIds })),
     onDeleteAppearance: id => dispatch(a.deleteAppearance(id))

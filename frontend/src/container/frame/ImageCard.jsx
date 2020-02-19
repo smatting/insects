@@ -21,6 +21,7 @@ const ImageCard = ({
   activeAnnotation,
   onAddAppearance,
   appearances,
+  collection,
   frame,
   onChangeFrame
 }) => {
@@ -28,7 +29,7 @@ const ImageCard = ({
   return (
     <Card className={classes.card}>
       <CardHeader
-        title={frame.timestamp}
+        title={frame.timestamp + " - " + collection.name}
         action={
           <>
             <IconButton aria-label="before" onClick={() => onChangeFrame(-1)}>

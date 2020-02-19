@@ -64,10 +64,12 @@ const Appearance = ({
   labels,
   classes,
   active,
-  onChangeActive
+  onChangeActive,
+  onDeleteAppearance
 }) => {
   const appearanceLabels = appearance.appearanceLabels;
   const [open, setOpen] = React.useState(false);
+
   return (
     <>
       <ListItem
@@ -77,7 +79,7 @@ const Appearance = ({
         onClick={() => onChangeActive(appearance.id)}
       >
         <ListItemIcon>
-          <IconButton onClick={() => console.log("test")}>
+          <IconButton onClick={() => onDeleteAppearance(appearance.id)}>
             <CloseIcon />
           </IconButton>
         </ListItemIcon>
@@ -122,7 +124,8 @@ const AppearanceList = ({
   appearances,
   labels,
   activeAppearance,
-  onChangeActive
+  onChangeActive,
+  onDeleteAppearance
 }) => {
   const classes = useStyles();
   console.log(activeAppearance);
@@ -141,6 +144,7 @@ const AppearanceList = ({
             onChangeActive={onChangeActive}
             labels={labels}
             classes={classes}
+            onDeleteAppearance={onDeleteAppearance}
           />
         )
       )}
