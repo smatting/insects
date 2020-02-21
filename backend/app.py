@@ -161,7 +161,7 @@ def handle_connection():
     labels = _get_all(models.Label)
     collections = _get_all(models.Collection)
     # frames = [_get_by_id(models.Frame, 123124, rels=['appearances', 'appearance_labels', 'appearance'])]
-    frames = [_get_by_id(models.Frame, 123124)]
+    frames = [_get_by_id(models.Frame, 96339)]
     # emit_one('SERVER_INIT', {'labels': [to_dict(l) for l in labels], 'collections': [to_dict(c) for c in collections], 'frames': [to_dict(f) for f in frames]})
     # frames_result = [to_dict(f) for f in frames]
     # import pdb; pdb.set_trace()
