@@ -7,39 +7,10 @@ from . import db
 from . import models
 
 from .utils import snakeize_dict_keys, camelize_dict_keys, to_dict
+from .models import FramesQuery
 
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import DeclarativeMeta
-
-
-def to_dict(obj, rels=[], backref=None):
-    '''
-    Turn models to dicts. Nested relationships listed in `rels` are turned to dicts too,
-    otherwise they are missing. Hacky, barely tested.
-
-    From https://mmas.github.io/sqlalchemy-serialize-json
-    '''
-    res = {column.key: getattr(obj, attr)
-           for attr, column in obj.__mapper__.c.items()}
-    if len(rels) > 0:
-        for attr, relation in obj.__mapper__.relationships.items():
-            if attr not in rels:
-                continue
-
-            if hasattr(relation, 'table'):
-                if backref == relation.table:
-                    continue
-
-            value = getattr(obj, attr)
-            if value is None:
-                res[relation.key] = None
-            elif isinstance(value.__class__, DeclarativeMeta):
-                res[relation.key] = to_dict(value, backref=obj.__table__, rels=rels)
-            else:
-                res[relation.key] = [to_dict(i, backref=obj.__table__, rels=rels)
-                                     for i in value]
-    return res
-
 
 
 # credit: https://stackoverflow.com/questions/44146087/pass-user-built-json-encoder-into-flasks-jsonify
@@ -132,10 +103,10 @@ def _get_all(model):
     return objs
 
 
-def _get_by_id(model, id):
+def _get_by_id(model, id, rels=[]):
     with db.session_scope() as session:
         obj = session.query(model).get(int(id))
-        obj = to_dict(obj)
+        obj = to_dict(obj, rels=rels)
     return obj
 
 def emit_one(action_name, payload):
@@ -189,17 +160,31 @@ def get_frame_appearances(*, frame_id, **_):
 def handle_connection():
     labels = _get_all(models.Label)
     collections = _get_all(models.Collection)
+    # frames = [_get_by_id(models.Frame, 123124, rels=['appearances', 'appearance_labels', 'appearance'])]
     frames = [_get_by_id(models.Frame, 123124)]
+    # emit_one('SERVER_INIT', {'labels': [to_dict(l) for l in labels], 'collections': [to_dict(c) for c in collections], 'frames': [to_dict(f) for f in frames]})
+    # frames_result = [to_dict(f) for f in frames]
+    # import pdb; pdb.set_trace()
+    # emit_one('SERVER_INIT', {'labels': [], 'collections': [], 'frames': [to_dict(f) for f in frames]})
+
+    # import pdb; pdb.set_trace()
     emit_one('SERVER_INIT', {'labels': labels, 'collections': collections, 'frames': frames})
-    get_frame_appearances(frame_id=123124)
+    # get_frame_appearances(frame_id=123124)
     # load_collection(7)
 
 
 def update_search(action):
     search = action['search']
     with db.session_scope() as session:
-        ntotal, frames = db.get_frames_subsample(session, tbegin=search['startDate'], tend=search['endDate'], nframes=10)
-        search_results = {'ntotal': ntotal, 'frames': [to_dict(frame) for frame in frames]}
+
+        q = FramesQuery(tbegin=search['startDate'],
+                        tend=search['endDate'],
+                        collection_id=None)
+        ntotal, frames = db.get_frames_subsample(session, frames_query=q, nframes=10)
+        frames_result = [to_dict(frame) for frame in frames]
+        # print(frames_result)
+
+        search_results = {'ntotal': ntotal, 'frames': frames_result}
 
         # print(f'ntotal: {ntotal}')
         print(f'ntotal: {ntotal}')
@@ -225,3 +210,15 @@ def handle_actions(action):
 
 def debug():
     socketio.run(app, host='0.0.0.0', debug=True, port=5000)
+
+
+def test():
+    model = models.Frame
+    id = 123124
+    with db.session_scope() as session:
+        obj = session.query(model).get(int(id))
+        rels = ['appearances']
+        return to_dict(obj, rels=rels)
+
+#     return obj
+#     _get_by_id(, , rels=[, 'appearance_labels', 'appearance'])

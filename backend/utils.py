@@ -9,12 +9,21 @@ def to_dict(obj, rels=[], backref=None):
 
     From https://mmas.github.io/sqlalchemy-serialize-json
     '''
+    relationship_keys = obj.__mapper__.relationships.keys()
+
     res = {}
     for key in dir(obj):
         if key.startswith('_') or key in ['metadata']:
             continue
         else:
-            res[key] = getattr(obj, key)
+            # if key == '
+
+
+            if key in relationship_keys:
+                continue
+            else:
+                # TODO: Test if key is at path
+                res[key] = getattr(obj, key)
 
     # res = {column.key: getattr(obj, attr)
     #        for attr, column in obj.__mapper__.c.items()}
