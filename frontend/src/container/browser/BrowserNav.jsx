@@ -22,38 +22,8 @@ const useStyles = makeStyles({
     marginLeft: 10,
     marginRight: 10
   },
-  sampleSize: { width: 100, marginLeft: 10, marginRight: 10 }
+  sampleSize: { width: 150, marginLeft: 10, marginRight: 10 }
 });
-
-const AddCollection = ({ onCollectionAdd, classes }) => {
-  const [collectionName, setCollectionName] = React.useState();
-  const [sampleSize, setSampleSize] = React.useState();
-  return (
-    <>
-      <form noValidate autoComplete="off">
-        <TextField
-          className={classes.collectionName}
-          id="standard-basic"
-          label="Collection Name"
-          value={collectionName}
-          onChange={event => setCollectionName(event.target.value)}
-        />
-        <TextField
-          className={classes.sampleSize}
-          id="standard-basic"
-          label="Sample Size"
-          value={sampleSize}
-          onChange={event => setSampleSize(event.target.value)}
-        />
-      </form>
-      <Fab color="primary" aria-label="add">
-        <AddIcon
-          onClick={() => onCollectionAdd({ collectionName, sampleSize })}
-        />
-      </Fab>
-    </>
-  );
-};
 
 const DateTimePicker = ({ date, setDate, label, classes }) => (
   <>
@@ -87,7 +57,7 @@ const DateTimePicker = ({ date, setDate, label, classes }) => (
   </>
 );
 
-const BrowserNav = ({ search, onSearchUpdate, onAddCollection }) => {
+const BrowserNav = ({ search, onSearchUpdate }) => {
   const classes = useStyles();
   console.log(search.startDate);
   return (
@@ -109,10 +79,17 @@ const BrowserNav = ({ search, onSearchUpdate, onAddCollection }) => {
         />
       </Grid>
       <Grid container item xs={4} spacing={3}>
-        <AddCollection
-          // TODO
-          //   onAdd={() => onAddCollection(search)}
-          classes={classes}
+        <TextField
+          className={classes.sampleSize}
+          id="standard-basic"
+          label="Number of Samples"
+          value={search.sampleSize}
+          onChange={event =>
+            onSearchUpdate({
+              ...search,
+              sampleSize: parseInt(event.target.value)
+            })
+          }
         />
       </Grid>
       <Grid container item xs={12} spacing={3}>

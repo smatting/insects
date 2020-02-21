@@ -148,6 +148,23 @@ def add_appearance(*, frame_id, appearance, label_ids, **_):
     emit_one('APPEARANCE_ADDED', {'appearance': app_dict})
 
 
+def add_collection(*, name, **_):
+    with db.session_scope() as session:
+        coll = models.Collection(name=name)
+        session.add(coll)
+        session.commit()
+        coll = to_dict(coll)
+    emit_one('COLLECTION_ADDED', {'collection': coll})
+
+
+def delete_collection(*, collection_id, **_):
+    with db.session_scope() as session:
+        app = session.query(models.Appearance).get(collection_id)
+        session.delete(app)
+        session.commit()
+    emit_one('COLLECTION_DELETED', {'collectionId': collection_id})
+
+
 def get_frame_appearances(*, frame_id, **_):
     with db.session_scope() as session:
         frame = session.query(models.Frame).get(frame_id)
@@ -173,25 +190,22 @@ def handle_connection():
     # load_collection(7)
 
 
-def update_search(action):
-    search = action['search']
+def update_search(*, search, **_):
     with db.session_scope() as session:
+        query = models.FramesQuery(
+            tbegin=search['start_date'], tend=search['end_date'],
+            collection_id=search.get('collection_id'))
+        ntotal, frames = db.get_frames_subsample(session, query, nframes=search['sample_size'])
+        frames = [{**to_dict(frame), "thumbnail": frame.thumbnail} for frame in frames]
 
-        q = FramesQuery(tbegin=search['startDate'],
-                        tend=search['endDate'],
-                        collection_id=None)
-        ntotal, frames = db.get_frames_subsample(session, frames_query=q, nframes=10)
-        frames_result = [to_dict(frame) for frame in frames]
-        # print(frames_result)
+    search_results = {'ntotal': ntotal, 'frames': frames}
 
-        search_results = {'ntotal': ntotal, 'frames': frames_result}
+    # print(f'ntotal: {ntotal}')
+    print(f'ntotal: {ntotal}')
+    print(f'len(frames): {len(search_results["frames"])}')
 
-        # print(f'ntotal: {ntotal}')
-        print(f'ntotal: {ntotal}')
-        print(f'len(frames): {len(search_results["frames"])}')
-
-        # print(search_results)
-        emit('action', {"type": 'SEARCH_UPDATED', 'searchResults': search_results})
+    # print(search_results)
+    emit('action', {"type": 'SEARCH_UPDATED', 'searchResults': search_results})
 
 
 @socketio.on('action')
@@ -199,11 +213,15 @@ def handle_actions(action):
     print(action)
     s_action = snakeize_dict_keys(action)
     if action['type'] == "SEARCH_UPDATE":
-        update_search(action)
+        update_search(**s_action)
     if action['type'] == "APPEARANCE_ADD":
         add_appearance(**s_action)
     if action['type'] == "APPEARANCE_DELETE":
         delete_appearance(**s_action)
+    if action['type'] == "COLLECTION_ADD":
+        add_collection(**s_action)
+    if action['type'] == "COLLECTION_DELETE":
+        delete_collection(**s_action)
     if action['type'] == "COLLECTIONFRAME_SELECT":
         pass
 

@@ -41,3 +41,19 @@ export const changeFrame = (collectionId, frameId, shift) => {
     server: true
   };
 };
+
+export const deleteCollection = collectionId => {
+  return {
+    type: "COLLECTION_DELETE",
+    collectionId,
+    server: true
+  };
+};
+
+export const addCollection = ({ name }) => {
+  return {
+    type: "COLLECTION_ADD",
+    name,
+    server: true
+  };
+};

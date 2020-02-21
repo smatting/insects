@@ -2,7 +2,7 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 import Annotation from "react-image-annotation";
-import Rectangle from "../Rectangle";
+import Rectangle from "./Rectangle";
 
 const useStyles = makeStyles({
   img: { height: "100%" }

@@ -13,21 +13,17 @@ import createSocketIoMiddleware from "redux-socket.io";
 import io from "socket.io-client";
 
 import { makeStyles } from "@material-ui/core/styles";
-import Drawer from "@material-ui/core/Drawer";
 import AppBar from "@material-ui/core/AppBar";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Toolbar from "@material-ui/core/Toolbar";
-import List from "@material-ui/core/List";
 import Typography from "@material-ui/core/Typography";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 
-import Browser from "./container/Browser";
+import Browser from "./container/browser/Browser";
 import Frame from "./container/frame/Frame";
 import LiveView from "./container/LiveView";
-import Dataset from "./container/Dataset";
+// import Dataset from "./container/Dataset";
 
 const drawerWidth = 240;
 
@@ -68,7 +64,7 @@ const views = [
   { screenName: "Live", id: "LIVE" },
   { screenName: "Browser", id: "BROWSER" },
   //   { screenName: "Single Dataset", id: "DATASET" },
-  { screenName: "Single Frame", id: "FRAME" }
+  { screenName: "Annotation", id: "FRAME" }
 ];
 
 const Index = ({ view, updateView }) => {

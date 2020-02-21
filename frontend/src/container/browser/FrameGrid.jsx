@@ -52,7 +52,12 @@ const FrameGrid = ({ frames, showSelect }) => {
   return (
     <GridList cellHeight={180} className={classes.gridList} cols={5}>
       {frames.map((frame, idx) => (
-        <FrameTile key={"frame-" + idx} {...frame} showSelect={showSelect} />
+        <FrameTile
+          key={"frame-" + idx}
+          {...frame}
+          selected={showSelect ? frames.selectedIds.includes(frame.id) : false}
+          showSelect={showSelect}
+        />
       ))}
     </GridList>
   );

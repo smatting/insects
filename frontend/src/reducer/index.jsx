@@ -2,7 +2,7 @@ import { combineReducers } from "redux";
 import { createReducer, findNonSerializableValue } from "redux-starter-kit";
 import _ from "lodash";
 
-const view = createReducer("FRAME", {
+const view = createReducer("BROWSER", {
   VIEW_UPDATE: (state, action) => action.view
 });
 
@@ -25,8 +25,14 @@ const key = list => ({
   allIds: _.map(list, ({ id }) => id)
 });
 
+const append = ({ byKey, allIds }, newObj) => ({
+  byKey: { ...byKey, [newObj.id]: newObj },
+  allIds: [...allIds, newObj.id]
+});
+
 const collections = createReducer(key([]), {
-  SERVER_INIT: (state, action) => key(action.collections)
+  SERVER_INIT: (state, action) => key(action.collections),
+  COLLECTION_ADDED: (state, action) => append(state, action.collection)
 });
 
 // const collection = createReducer(
@@ -40,7 +46,7 @@ const collections = createReducer(key([]), {
 // );
 
 const frames = createReducer(key([]), {
-  SERVER_INIT: (state, action) => key(action.frames)
+  SERVER_INIT: (state, action) => ({ ...key(action.frames), selectedIds: [] })
 });
 
 const appearances = createReducer(
@@ -64,7 +70,9 @@ const labels = createReducer(key([]), {
 
 const defaultSearch = {
   startDate: new Date("2019-11-15T00:00:00"),
-  endDate: new Date("2020-01-31T00:00:00")
+  endDate: new Date("2020-01-31T00:00:00"),
+  sampleSize: 500,
+  collectionId: null
 };
 
 const search = createReducer(defaultSearch, {

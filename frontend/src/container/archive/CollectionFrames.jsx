@@ -30,7 +30,7 @@ class Frames extends React.Component {
 
   render() {
     const { classes, collectionId } = this.props;
-      /*
+    /*
     return (
       <QueryRenderer
         environment={Environment}
