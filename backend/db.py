@@ -263,6 +263,60 @@ def collection_remove_frames_via_query(session, collection_id, frames_query):
     cursor.execute(q, (collection_id, tuple(ids_)))
 
 
+def navigate_frame(session, collection_id, frame_id, offset):
+    '''
+    Look for the frame at the offset of another frame.
+    If nothing is at the position return the frame that is closest.
+
+    Returns: frame_id
+    '''
+    q = '''
+    with
+
+    ordered_frames as (
+        select
+            row_number() over (order by timestamp asc) as pos,
+            f.id as frame_id
+        from
+        collection_frame cf
+        left join frames f
+            on f.id = cf.frame_id
+        where collection_id = %(collection_id)s
+    ),
+
+    ranges as (
+        select frame_id, 'first'::text as ind from ordered_frames where pos = (select min(pos) from ordered_frames)
+        union all
+        select frame_id, 'last'::text as ind from ordered_frames where pos = (select max(pos) from ordered_frames)
+    ),
+
+    fallback as (
+        select
+            case
+                when (%(offset)s) >= 0 then (select frame_id from ranges where ind = 'last')
+                else (select frame_id from ranges where ind = 'first')
+            end frame_id
+    )
+
+    select
+        coalesce(x.frame_id, fallback.frame_id)
+    from
+        (
+            select
+                frame_id
+            from
+                ordered_frames orf
+            where
+                orf.pos = (select pos from ordered_frames where frame_id = %(frame_id)s limit 1) + (%(offset)s)
+        ) x
+        full outer join fallback on 1=1
+    '''
+    cursor = get_cursor(session)
+    cursor.execute(q, {'collection_id': collection_id, 'frame_id': frame_id, 'offset': offset})
+    row = cursor.fetchone()
+    return row[0]
+
+
 def test():
     with session_scope() as session:
         tbegin = datetime.datetime(2019, 11, 1)
@@ -292,5 +346,6 @@ def test3():
         frames_query = FramesQuery(None, None, 28)
         # pagination = None
         # pagination = Pagination(after_id=78063, pagesize=6)
-        ids = fetch_frame_ids(session, frames_query, pagination)
-        print(f'n={len(ids)}: {ids[:10]}')
+        # ids = fetch_frame_ids(session, frames_query, pagination)
+        # print(f'n={len(ids)}: {ids[:10]}')
+        return navigate_frame(session=session, collection_id=28, frame_id=78064, offset=-9)
