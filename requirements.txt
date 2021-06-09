@@ -10,6 +10,6 @@ flask_graphql
 graphene
 sqlalchemy
 graphene_sqlalchemy
-django==2.2.8
+django==2.2.22
 graphene_django
 
